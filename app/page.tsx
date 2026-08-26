@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { fetchJson } from "@/lib/fetch-json";
 
 type SetSummary = {
   id: string;
@@ -12,11 +13,12 @@ type SetSummary = {
 
 export default function HomePage() {
   const [sets, setSets] = useState<SetSummary[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/sets")
-      .then((res) => res.json())
-      .then(setSets);
+    fetchJson<SetSummary[]>("/api/sets")
+      .then(setSets)
+      .catch((err) => setError(err.message));
   }, []);
 
   return (
@@ -25,7 +27,8 @@ export default function HomePage() {
       <p>
         <Link href="/edit/new">+ สร้างชุดโจทย์ใหม่</Link>
       </p>
-      {sets === null && <p>กำลังโหลด...</p>}
+      {error && <p>{error}</p>}
+      {sets === null && !error && <p>กำลังโหลด...</p>}
       {sets?.length === 0 && <p>ยังไม่มีชุดโจทย์ สร้างชุดแรกกันเลย</p>}
       <ul style={{ listStyle: "none", padding: 0 }}>
         {sets?.map((set) => (

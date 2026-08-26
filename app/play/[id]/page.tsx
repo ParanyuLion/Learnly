@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { shuffleIntoCards, isMatch, type Card, type Pair } from "@/lib/matching-game";
+import { fetchJson } from "@/lib/fetch-json";
 
 export default function PlaySetPage({ params }: { params: { id: string } }) {
   const [title, setTitle] = useState("");
@@ -9,15 +10,15 @@ export default function PlaySetPage({ params }: { params: { id: string } }) {
   const [selected, setSelected] = useState<Card | null>(null);
   const [matchedPairIds, setMatchedPairIds] = useState<Set<string>>(new Set());
   const [wrongPair, setWrongPair] = useState<[string, string] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/sets/${params.id}`)
-      .then((res) => res.json())
+    fetchJson<{ title: string; pairs: Pair[] }>(`/api/sets/${params.id}`)
       .then((data) => {
         setTitle(data.title);
-        const pairs: Pair[] = data.pairs;
-        setCards(shuffleIntoCards(pairs));
-      });
+        setCards(shuffleIntoCards(data.pairs));
+      })
+      .catch((err) => setError(err.message));
   }, [params.id]);
 
   function handleClick(card: Card) {
@@ -38,6 +39,7 @@ export default function PlaySetPage({ params }: { params: { id: string } }) {
     }
   }
 
+  if (error) return <p>{error}</p>;
   if (!cards) return <p>กำลังโหลด...</p>;
 
   const won = matchedPairIds.size > 0 && matchedPairIds.size === cards.length / 2;

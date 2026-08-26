@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchJson } from "@/lib/fetch-json";
 
 type PairInput = { left: string; right: string };
 
@@ -11,14 +12,18 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
   const [title, setTitle] = useState("");
   const [pairs, setPairs] = useState<PairInput[]>([{ left: "", right: "" }]);
   const [loading, setLoading] = useState(!isNew);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isNew) return;
-    fetch(`/api/sets/${params.id}`)
-      .then((res) => res.json())
+    fetchJson<{ title: string; pairs: { left: string; right: string }[] }>(`/api/sets/${params.id}`)
       .then((data) => {
         setTitle(data.title);
-        setPairs(data.pairs.map((p: { left: string; right: string }) => ({ left: p.left, right: p.right })));
+        setPairs(data.pairs.map((p) => ({ left: p.left, right: p.right })));
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
         setLoading(false);
       });
   }, [isNew, params.id]);
@@ -45,29 +50,35 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
       return;
     }
 
-    if (isNew) {
-      const created = await fetch("/api/sets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim() }),
-      }).then((res) => res.json());
+    try {
+      if (isNew) {
+        const created = await fetchJson<{ id: string }>("/api/sets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: title.trim() }),
+        });
 
-      await fetch(`/api/sets/${created.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), pairs: cleanPairs }),
-      });
-    } else {
-      await fetch(`/api/sets/${params.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), pairs: cleanPairs }),
-      });
+        await fetchJson(`/api/sets/${created.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: title.trim(), pairs: cleanPairs }),
+        });
+      } else {
+        await fetchJson(`/api/sets/${params.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: title.trim(), pairs: cleanPairs }),
+        });
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
+      return;
     }
 
     router.push("/");
   }
 
+  if (error) return <p>{error}</p>;
   if (loading) return <p>กำลังโหลด...</p>;
 
   return (
