@@ -3,3 +3,4 @@ node_modules
 .next
 dev.db
 .env
+next-env.d.ts
