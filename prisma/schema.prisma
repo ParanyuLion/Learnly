@@ -22,3 +22,28 @@ model Pair {
   left  String
   right String
 }
+
+model SortSet {
+  id         String         @id @default(cuid())
+  title      String
+  createdAt  DateTime       @default(now())
+  categories SortCategory[]
+  items      SortItem[]
+}
+
+model SortCategory {
+  id    String     @id @default(cuid())
+  setId String
+  set   SortSet    @relation(fields: [setId], references: [id], onDelete: Cascade)
+  name  String
+  items SortItem[]
+}
+
+model SortItem {
+  id         String       @id @default(cuid())
+  setId      String
+  set        SortSet      @relation(fields: [setId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   SortCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  text       String
+}
