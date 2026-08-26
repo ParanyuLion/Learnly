@@ -46,8 +46,10 @@ model Pair {
 2. `/edit/[id]` — form to add/edit/remove pairs within a set (also used to
    create a new set, via `/edit/new`).
 3. `/play/[id]` — matching game: cards are shuffled and shown, player
-   clicks/drags to match `left` items with their `right` counterpart, with
-   a simple timer and win state.
+   clicks to match `left` items with their `right` counterpart, with a win
+   state once all pairs are matched. (Descoped during final review: no
+   timer — gameplay nice-to-have, not required for a working matching
+   game. Can be added later if wanted.)
 
 ## API Routes
 - `GET/POST /api/sets` — list / create GameSets
