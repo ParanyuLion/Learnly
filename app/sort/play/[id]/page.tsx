@@ -53,7 +53,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   if (error) return <p className="error-banner">{error}</p>;
   if (!pool) return <p>กำลังโหลด...</p>;
 
-  const won = pool.length === 0;
+  const won = categories.length > 0 && pool.length === 0;
 
   return (
     <main className="page">
@@ -78,8 +78,9 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
       </div>
       <div className={styles.categoryGrid}>
         {categories.map((category) => (
-          <div
+          <button
             key={category.id}
+            type="button"
             className={styles.categoryBox}
             data-wrong={wrongCategoryId === category.id}
             onClick={() => clickCategory(category)}
@@ -90,7 +91,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
                 {item.text}
               </span>
             ))}
-          </div>
+          </button>
         ))}
       </div>
     </main>

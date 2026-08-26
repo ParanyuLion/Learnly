@@ -40,6 +40,11 @@
 }
 
 .categoryBox {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
   background: var(--color-surface);
   border: 2px solid #eee0ff;
   border-radius: var(--radius-md);

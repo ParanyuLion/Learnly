@@ -31,8 +31,14 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      fetchJson<MatchSetSummary[]>("/api/sets"),
-      fetchJson<SortSetSummary[]>("/api/sort-sets"),
+      fetchJson<MatchSetSummary[]>("/api/sets").catch((err) => {
+        console.error(err);
+        return [] as MatchSetSummary[];
+      }),
+      fetchJson<SortSetSummary[]>("/api/sort-sets").catch((err) => {
+        console.error(err);
+        return [] as SortSetSummary[];
+      }),
     ])
       .then(([matchSets, sortSets]) => {
         const matchTiles: Tile[] = matchSets.map((s) => ({
