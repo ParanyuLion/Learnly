@@ -1,0 +1,69 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.categoryCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop-sm) rgba(43, 34, 80, 0.1);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.categoryHeader {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.categoryNameInput {
+  flex: 1;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 12px;
+}
+
+.itemRow {
+  display: flex;
+  gap: 8px;
+}
+
+.itemRow .text-input {
+  flex: 1;
+}
+
+.removeBtn {
+  border: none;
+  background: transparent;
+  color: var(--color-ink-soft);
+  font-size: 1.1rem;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.removeBtn:hover {
+  color: var(--color-coral-dark);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
