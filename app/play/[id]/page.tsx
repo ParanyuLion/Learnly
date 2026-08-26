@@ -45,6 +45,27 @@ export default function PlaySetPage({ params }: { params: { id: string } }) {
   if (!cards) return <p>กำลังโหลด...</p>;
 
   const won = matchedPairIds.size > 0 && matchedPairIds.size === cards.length / 2;
+  const leftCards = cards.filter((card) => card.side === "left");
+  const rightCards = cards.filter((card) => card.side === "right");
+
+  function renderCard(card: Card) {
+    const isMatched = matchedPairIds.has(card.pairId);
+    const isSelected = selected?.id === card.id;
+    const isWrong = wrongPair?.includes(card.id);
+    const state = isMatched ? "matched" : isWrong ? "wrong" : isSelected ? "selected" : undefined;
+    return (
+      <button
+        key={card.id}
+        className={styles.card}
+        data-side={card.side}
+        data-state={state}
+        onClick={() => handleClick(card)}
+        disabled={isMatched}
+      >
+        {card.text}
+      </button>
+    );
+  }
 
   return (
     <main className="page">
@@ -55,25 +76,9 @@ export default function PlaySetPage({ params }: { params: { id: string } }) {
         </Link>
       </div>
       {won && <div className={styles.winBanner}>ยินดีด้วย! จับคู่ครบแล้ว 🎉</div>}
-      <div className={styles.grid}>
-        {cards.map((card) => {
-          const isMatched = matchedPairIds.has(card.pairId);
-          const isSelected = selected?.id === card.id;
-          const isWrong = wrongPair?.includes(card.id);
-          const state = isMatched ? "matched" : isWrong ? "wrong" : isSelected ? "selected" : undefined;
-          return (
-            <button
-              key={card.id}
-              className={styles.card}
-              data-side={card.side}
-              data-state={state}
-              onClick={() => handleClick(card)}
-              disabled={isMatched}
-            >
-              {card.text}
-            </button>
-          );
-        })}
+      <div className={styles.columns}>
+        <div className={styles.column}>{leftCards.map(renderCard)}</div>
+        <div className={styles.column}>{rightCards.map(renderCard)}</div>
       </div>
     </main>
   );

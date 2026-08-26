@@ -9,9 +9,15 @@
   animation: pop-in 0.35s ease;
 }
 
-.grid {
+.columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
