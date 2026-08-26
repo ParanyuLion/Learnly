@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model GameSet {
+  id        String   @id @default(cuid())
+  title     String
+  createdAt DateTime @default(now())
+  pairs     Pair[]
+}
+
+model Pair {
+  id    String  @id @default(cuid())
+  setId String
+  set   GameSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  left  String
+  right String
+}
