@@ -1,0 +1,58 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTop {
+  height: 8px;
+}
+
+.cardTop[data-accent="coral"] {
+  background: var(--color-coral);
+}
+
+.cardTop[data-accent="mint"] {
+  background: var(--color-mint);
+}
+
+.cardTop[data-accent="lavender"] {
+  background: var(--color-lavender-dark);
+}
+
+.cardTop[data-accent="yellow"] {
+  background: var(--color-yellow);
+}
+
+.cardBody {
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.cardActions .btn {
+  flex: 1;
+}

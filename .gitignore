@@ -4,3 +4,4 @@ node_modules
 dev.db
 .env
 next-env.d.ts
+tsconfig.tsbuildinfo

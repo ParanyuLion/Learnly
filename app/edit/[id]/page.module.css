@@ -1,0 +1,70 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pairList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pairRow {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-pop-sm) rgba(43, 34, 80, 0.1);
+}
+
+.pairHalf {
+  flex: 1;
+  padding: 10px;
+}
+
+.pairHalf:first-child {
+  background: color-mix(in srgb, var(--color-lavender) 35%, white);
+}
+
+.pairHalf:last-child {
+  background: color-mix(in srgb, var(--color-mint) 25%, white);
+}
+
+.pairInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  padding: 6px 4px;
+  color: var(--color-ink);
+}
+
+.pairInput:focus {
+  outline: none;
+}
+
+.pairInput::placeholder {
+  color: var(--color-ink-soft);
+}
+
+.removeBtn {
+  border: none;
+  background: transparent;
+  color: var(--color-ink-soft);
+  font-size: 1.1rem;
+  padding: 0 14px;
+  cursor: pointer;
+  align-self: stretch;
+}
+
+.removeBtn:hover {
+  color: var(--color-coral-dark);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}

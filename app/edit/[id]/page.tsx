@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchJson } from "@/lib/fetch-json";
+import styles from "./page.module.css";
 
 type PairInput = { left: string; right: string };
 
@@ -78,38 +79,57 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
     router.push("/");
   }
 
-  if (error) return <p>{error}</p>;
+  if (error) return <p className="error-banner">{error}</p>;
   if (loading) return <p>กำลังโหลด...</p>;
 
   return (
-    <main style={{ maxWidth: 640, margin: "0 auto", padding: 24 }}>
-      <h1>{isNew ? "สร้างชุดโจทย์ใหม่" : "แก้ไขชุดโจทย์"}</h1>
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="ชื่อชุดโจทย์"
-        style={{ display: "block", width: "100%", padding: 8, marginBottom: 16 }}
-      />
-      {pairs.map((pair, i) => (
-        <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <input
-            value={pair.left}
-            onChange={(e) => updatePair(i, "left", e.target.value)}
-            placeholder="คำซ้าย"
-            style={{ flex: 1, padding: 8 }}
-          />
-          <input
-            value={pair.right}
-            onChange={(e) => updatePair(i, "right", e.target.value)}
-            placeholder="คำขวา"
-            style={{ flex: 1, padding: 8 }}
-          />
-          <button onClick={() => removePair(i)}>ลบ</button>
+    <main className="page">
+      <div className="page-header">
+        <h1 className="page-title">{isNew ? "สร้างชุดโจทย์ใหม่" : "แก้ไขชุดโจทย์"}</h1>
+      </div>
+      <div className={styles.form}>
+        <input
+          className="text-input"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="ชื่อชุดโจทย์"
+        />
+        <div className={styles.pairList}>
+          {pairs.map((pair, i) => (
+            <div key={i} className={styles.pairRow}>
+              <div className={styles.pairHalf}>
+                <input
+                  className={styles.pairInput}
+                  value={pair.left}
+                  onChange={(e) => updatePair(i, "left", e.target.value)}
+                  placeholder="คำซ้าย"
+                />
+              </div>
+              <div className={styles.pairHalf}>
+                <input
+                  className={styles.pairInput}
+                  value={pair.right}
+                  onChange={(e) => updatePair(i, "right", e.target.value)}
+                  placeholder="คำขวา"
+                />
+              </div>
+              <button className={styles.removeBtn} onClick={() => removePair(i)} aria-label="ลบคู่คำนี้">
+                ✕
+              </button>
+            </div>
+          ))}
         </div>
-      ))}
-      <button onClick={addPair}>+ เพิ่มคู่คำ</button>
-      <div style={{ marginTop: 16 }}>
-        <button onClick={save}>บันทึก</button>
+        <button className="btn btn-outline" onClick={addPair}>
+          + เพิ่มคู่คำ
+        </button>
+        <div className={styles.actions}>
+          <button className="btn btn-ghost" onClick={() => router.push("/")}>
+            ยกเลิก
+          </button>
+          <button className="btn btn-primary" onClick={save}>
+            บันทึก
+          </button>
+        </div>
       </div>
     </main>
   );

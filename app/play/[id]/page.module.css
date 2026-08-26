@@ -1,0 +1,98 @@
+.winBanner {
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  animation: pop-in 0.35s ease;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.card {
+  position: relative;
+  padding: 20px 14px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.05rem;
+  background: var(--color-surface);
+  border: 2px solid #eee0ff;
+  border-top-width: 6px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.15s ease;
+  color: var(--color-ink);
+}
+
+.card[data-side="left"] {
+  border-top-color: var(--color-lavender-dark);
+}
+
+.card[data-side="right"] {
+  border-top-color: var(--color-mint-dark);
+}
+
+.card[data-state="selected"] {
+  transform: scale(1.04);
+  border-color: var(--color-yellow);
+}
+
+.card[data-state="wrong"] {
+  background: var(--color-red-bg);
+  border-color: var(--color-red);
+  animation: shake 0.35s ease;
+}
+
+.card[data-state="matched"] {
+  background: #e3fbf0;
+  border-color: var(--color-mint);
+  color: var(--color-mint-dark);
+  cursor: default;
+  animation: solve 0.3s ease;
+}
+
+.card:disabled {
+  cursor: default;
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes solve {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
