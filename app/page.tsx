@@ -33,6 +33,11 @@ type Tile =
 
 const ACCENTS = ["coral", "mint", "lavender", "yellow"] as const;
 
+async function logout() {
+  await fetchJson("/api/logout", { method: "POST" });
+  window.location.href = "/login";
+}
+
 export default function HomePage() {
   const [tiles, setTiles] = useState<Tile[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,16 +97,21 @@ export default function HomePage() {
     <main className="page">
       <div className="page-header">
         <h1 className="page-title">ชุดโจทย์ของฉัน</h1>
-        <div style={{ display: "flex", gap: 8 }}>
-          <Link href="/edit/new" className="btn btn-primary">
-            + เกมจับคู่
-          </Link>
-          <Link href="/sort/edit/new" className="btn btn-outline">
-            + เกมจัดหมวดหมู่
-          </Link>
-          <Link href="/flashcard/edit/new" className="btn btn-outline">
-            + เกมการ์ดคำศัพท์
-          </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href="/edit/new" className="btn btn-primary">
+              + เกมจับคู่
+            </Link>
+            <Link href="/sort/edit/new" className="btn btn-outline">
+              + เกมจัดหมวดหมู่
+            </Link>
+            <Link href="/flashcard/edit/new" className="btn btn-outline">
+              + เกมการ์ดคำศัพท์
+            </Link>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={logout}>
+            ออกจากระบบ
+          </button>
         </div>
       </div>
 
