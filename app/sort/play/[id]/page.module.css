@@ -1,4 +1,9 @@
 .winBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   background: var(--color-yellow);
   color: var(--color-ink);
   font-family: var(--font-display);

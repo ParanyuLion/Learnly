@@ -8,6 +8,7 @@ import styles from "./page.module.css";
 
 export default function PlayFlashcardSetPage({ params }: { params: { id: string } }) {
   const [title, setTitle] = useState("");
+  const [sourceCards, setSourceCards] = useState<Card[] | null>(null);
   const [deck, setDeck] = useState<Card[] | null>(null);
   const [totalCards, setTotalCards] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -17,11 +18,18 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
     fetchJson<{ title: string; cards: Card[] }>(`/api/flashcard-sets/${params.id}`)
       .then((data) => {
         setTitle(data.title);
+        setSourceCards(data.cards);
         setTotalCards(data.cards.length);
         setDeck(shuffleCards(data.cards));
       })
       .catch((err) => setError(err.message));
   }, [params.id]);
+
+  function playAgain() {
+    if (!sourceCards) return;
+    setDeck(shuffleCards(sourceCards));
+    setFlipped(false);
+  }
 
   function markKnown() {
     setDeck((prev) => (prev ? prev.slice(1) : prev));
@@ -47,7 +55,14 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
           ← กลับหน้าแรก
         </Link>
       </div>
-      {won && <div className={styles.winBanner}>ยินดีด้วย! จำได้ครบทุกใบแล้ว 🎉</div>}
+      {won && (
+        <div className={styles.winBanner}>
+          <span>ยินดีด้วย! จำได้ครบทุกใบแล้ว 🎉</span>
+          <button className="btn btn-primary btn-sm" onClick={playAgain}>
+            เล่นอีกครั้ง
+          </button>
+        </div>
+      )}
       {!won && current && (
         <>
           <p className={styles.progress}>เหลือ {deck.length} ใบ</p>

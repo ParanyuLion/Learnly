@@ -11,6 +11,7 @@ type CheckMode = "immediate" | "batch";
 export default function PlaySortSetPage({ params }: { params: { id: string } }) {
   const [title, setTitle] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [sourceItems, setSourceItems] = useState<Item[]>([]);
   const [pool, setPool] = useState<Item[] | null>(null);
   const [totalItems, setTotalItems] = useState(0);
   const [placed, setPlaced] = useState<Record<string, Item[]>>({});
@@ -80,6 +81,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
           c.items.map((i) => ({ id: i.id, text: i.text, categoryId: c.id }))
         );
         setCategories(cats);
+        setSourceItems(allItems);
         setTotalItems(allItems.length);
         setPool(shuffleItems(allItems));
         setPlaced(Object.fromEntries(cats.map((c) => [c.id, []])));
@@ -88,6 +90,15 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   }, [params.id]);
 
   const hasStarted = pool !== null && pool.length < totalItems;
+
+  function playAgain() {
+    setPool(shuffleItems(sourceItems));
+    setPlaced(Object.fromEntries(categories.map((c) => [c.id, []])));
+    setSelected(null);
+    setWrongCategoryId(null);
+    setCorrectCategoryId(null);
+    setRevealed(false);
+  }
 
   function toggleMode() {
     if (hasStarted) return;
@@ -163,7 +174,14 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
         {!won && <span className={styles.progress}>เหลือ {pool.length} ชิ้น</span>}
       </div>
 
-      {won && <div className={styles.winBanner}>ยินดีด้วย! จัดครบทุกหมวดแล้ว 🎉</div>}
+      {won && (
+        <div className={styles.winBanner}>
+          <span>ยินดีด้วย! จัดครบทุกหมวดแล้ว 🎉</span>
+          <button className="btn btn-primary btn-sm" onClick={playAgain}>
+            เล่นอีกครั้ง
+          </button>
+        </div>
+      )}
       {showResultBanner && (
         <div className={styles.resultBanner}>มีบางข้อยังไม่ถูกต้อง คลิกการ์ดสีแดงเพื่อจัดใหม่</div>
       )}

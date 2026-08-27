@@ -8,6 +8,7 @@ import styles from "./page.module.css";
 
 export default function PlaySetPage({ params }: { params: { id: string } }) {
   const [title, setTitle] = useState("");
+  const [pairs, setPairs] = useState<Pair[] | null>(null);
   const [cards, setCards] = useState<Card[] | null>(null);
   const [selected, setSelected] = useState<Card | null>(null);
   const [matchedPairIds, setMatchedPairIds] = useState<Set<string>>(new Set());
@@ -18,10 +19,19 @@ export default function PlaySetPage({ params }: { params: { id: string } }) {
     fetchJson<{ title: string; pairs: Pair[] }>(`/api/sets/${params.id}`)
       .then((data) => {
         setTitle(data.title);
+        setPairs(data.pairs);
         setCards(shuffleIntoCards(data.pairs));
       })
       .catch((err) => setError(err.message));
   }, [params.id]);
+
+  function playAgain() {
+    if (!pairs) return;
+    setCards(shuffleIntoCards(pairs));
+    setMatchedPairIds(new Set());
+    setSelected(null);
+    setWrongPair(null);
+  }
 
   function handleClick(card: Card) {
     if (matchedPairIds.has(card.pairId) || card.id === selected?.id) return;
@@ -75,7 +85,14 @@ export default function PlaySetPage({ params }: { params: { id: string } }) {
           ← กลับหน้าแรก
         </Link>
       </div>
-      {won && <div className={styles.winBanner}>ยินดีด้วย! จับคู่ครบแล้ว 🎉</div>}
+      {won && (
+        <div className={styles.winBanner}>
+          <span>ยินดีด้วย! จับคู่ครบแล้ว 🎉</span>
+          <button className="btn btn-primary btn-sm" onClick={playAgain}>
+            เล่นอีกครั้ง
+          </button>
+        </div>
+      )}
       <div className={styles.columns}>
         <div className={styles.column}>{leftCards.map(renderCard)}</div>
         <div className={styles.column}>{rightCards.map(renderCard)}</div>
