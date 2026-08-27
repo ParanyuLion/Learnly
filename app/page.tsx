@@ -36,19 +36,24 @@ const ACCENTS = ["coral", "mint", "lavender", "yellow"] as const;
 export default function HomePage() {
   const [tiles, setTiles] = useState<Tile[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [failedTypes, setFailedTypes] = useState<string[]>([]);
 
   useEffect(() => {
+    const failed: string[] = [];
     Promise.all([
       fetchJson<MatchSetSummary[]>("/api/sets").catch((err) => {
         console.error(err);
+        failed.push("จับคู่");
         return [] as MatchSetSummary[];
       }),
       fetchJson<SortSetSummary[]>("/api/sort-sets").catch((err) => {
         console.error(err);
+        failed.push("จัดหมวดหมู่");
         return [] as SortSetSummary[];
       }),
       fetchJson<FlashcardSetSummary[]>("/api/flashcard-sets").catch((err) => {
         console.error(err);
+        failed.push("การ์ดคำศัพท์");
         return [] as FlashcardSetSummary[];
       }),
     ])
@@ -78,6 +83,7 @@ export default function HomePage() {
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setTiles(merged);
+        setFailedTypes(failed);
       })
       .catch((err) => setError(err.message));
   }, []);
@@ -101,7 +107,12 @@ export default function HomePage() {
 
       {error && <p className="error-banner">{error}</p>}
       {tiles === null && !error && <p>กำลังโหลด...</p>}
-      {tiles?.length === 0 && (
+      {failedTypes.length > 0 && (
+        <p className="error-banner">
+          โหลดชุดโจทย์บางประเภทไม่สำเร็จ: {failedTypes.join(", ")}
+        </p>
+      )}
+      {tiles?.length === 0 && failedTypes.length === 0 && (
         <div className="empty-state">
           <p>ยังไม่มีชุดโจทย์ สร้างชุดแรกกันเลย</p>
         </div>

@@ -70,6 +70,14 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
           </div>
         </>
       )}
+      {!won && totalCards === 0 && (
+        <div className="empty-state">
+          <p>ชุดนี้ยังไม่มีการ์ด</p>
+          <Link href={`/flashcard/edit/${params.id}`} className="btn btn-primary">
+            เพิ่มการ์ด
+          </Link>
+        </div>
+      )}
     </main>
   );
 }
