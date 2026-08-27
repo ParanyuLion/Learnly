@@ -1,0 +1,70 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardRow {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-pop-sm) rgba(43, 34, 80, 0.1);
+}
+
+.cardHalf {
+  flex: 1;
+  padding: 10px;
+}
+
+.cardHalf:first-child {
+  background: color-mix(in srgb, var(--color-lavender) 35%, white);
+}
+
+.cardHalf:last-child {
+  background: color-mix(in srgb, var(--color-mint) 25%, white);
+}
+
+.cardInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  padding: 6px 4px;
+  color: var(--color-ink);
+}
+
+.cardInput:focus {
+  outline: none;
+}
+
+.cardInput::placeholder {
+  color: var(--color-ink-soft);
+}
+
+.removeBtn {
+  border: none;
+  background: transparent;
+  color: var(--color-ink-soft);
+  font-size: 1.1rem;
+  padding: 0 14px;
+  cursor: pointer;
+  align-self: stretch;
+}
+
+.removeBtn:hover {
+  color: var(--color-coral-dark);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
