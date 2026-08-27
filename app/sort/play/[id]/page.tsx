@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { shuffleItems, isCorrectCategory, type Item, type Category } from "@/lib/sort-game";
 import { fetchJson } from "@/lib/fetch-json";
@@ -20,6 +20,53 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   const [mode, setMode] = useState<CheckMode>("immediate");
   const [revealed, setRevealed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // FLIP-animation bookkeeping: track each item button's current DOM node so we
+  // can read its on-screen position right before it moves, then slide the new
+  // element in from that same screen position instead of just fading in place.
+  const itemElRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const pendingFlip = useRef<Map<string, DOMRect>>(new Map());
+
+  function captureForFlip(id: string) {
+    const el = itemElRefs.current.get(id);
+    if (el) pendingFlip.current.set(id, el.getBoundingClientRect());
+  }
+
+  function itemFlipRef(id: string) {
+    return (el: HTMLButtonElement | null) => {
+      if (!el) {
+        itemElRefs.current.delete(id);
+        return;
+      }
+      itemElRefs.current.set(id, el);
+
+      const fromRect = pendingFlip.current.get(id);
+      if (!fromRect) return;
+      pendingFlip.current.delete(id);
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const toRect = el.getBoundingClientRect();
+      const dx = fromRect.left - toRect.left;
+      const dy = fromRect.top - toRect.top;
+      if (dx === 0 && dy === 0) return;
+
+      el.style.transition = "none";
+      el.style.transform = `translate(${dx}px, ${dy}px)`;
+      void el.offsetWidth; // force layout so the transform above actually paints before we animate away from it
+      requestAnimationFrame(() => {
+        el.style.transition = "transform 0.3s ease";
+        el.style.transform = "translate(0, 0)";
+      });
+
+      const cleanup = () => {
+        el.style.transition = "";
+        el.style.transform = "";
+        el.removeEventListener("transitionend", cleanup);
+      };
+      el.addEventListener("transitionend", cleanup);
+    };
+  }
 
   useEffect(() => {
     fetchJson<{
@@ -52,11 +99,13 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   }
 
   function placeItem(item: Item, categoryId: string) {
+    captureForFlip(item.id);
     setPool((prev) => (prev ? prev.filter((i) => i.id !== item.id) : prev));
     setPlaced((prev) => ({ ...prev, [categoryId]: [...prev[categoryId], item] }));
   }
 
   function returnToPool(item: Item, categoryId: string) {
+    captureForFlip(item.id);
     setPlaced((prev) => ({ ...prev, [categoryId]: prev[categoryId].filter((i) => i.id !== item.id) }));
     setPool((prev) => (prev ? [...prev, item] : prev));
   }
@@ -123,6 +172,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
         {pool.map((item) => (
           <button
             key={item.id}
+            ref={itemFlipRef(item.id)}
             className={styles.item}
             data-selected={selected?.id === item.id}
             onClick={() => selectItem(item)}
@@ -154,6 +204,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
                   return (
                     <button
                       key={item.id}
+                      ref={itemFlipRef(item.id)}
                       type="button"
                       className={styles.placedItem}
                       data-state={mode === "batch" && !revealed ? undefined : correct ? "correct" : "incorrect"}

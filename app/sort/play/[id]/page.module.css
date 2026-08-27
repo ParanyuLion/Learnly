@@ -129,7 +129,6 @@
   padding: 6px 12px;
   font-weight: 600;
   cursor: default;
-  animation: item-drop 0.3s ease;
 }
 
 .placedItem[data-state="correct"] {
@@ -171,20 +170,8 @@
   }
 }
 
-@keyframes item-drop {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .categoryBox[data-wrong="true"],
-  .placedItem {
+  .categoryBox[data-wrong="true"] {
     animation: none;
   }
 }
