@@ -47,3 +47,18 @@ model SortItem {
   category   SortCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   text       String
 }
+
+model FlashcardSet {
+  id        String      @id @default(cuid())
+  title     String
+  createdAt DateTime    @default(now())
+  cards     Flashcard[]
+}
+
+model Flashcard {
+  id    String       @id @default(cuid())
+  setId String
+  set   FlashcardSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  front String
+  back  String
+}
