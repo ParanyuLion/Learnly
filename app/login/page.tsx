@@ -23,7 +23,8 @@ export default function LoginPage() {
     }
 
     const params = new URLSearchParams(window.location.search);
-    const from = params.get("from") || "/";
+    const raw = params.get("from") || "/";
+    const from = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
     router.push(from);
     router.refresh();
   }
