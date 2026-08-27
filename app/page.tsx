@@ -166,7 +166,6 @@ export default function HomePage() {
       )}
 
       {error && <p className="error-banner">{error}</p>}
-      {tiles === null && !error && <p>กำลังโหลด...</p>}
       {failedTypes.length > 0 && (
         <p className="error-banner">
           โหลดชุดโจทย์บางประเภทไม่สำเร็จ: {failedTypes.join(", ")}
@@ -206,6 +205,25 @@ export default function HomePage() {
       {tiles !== null && tiles.length > 0 && filteredTiles?.length === 0 && (
         <div className="empty-state">
           <p>ไม่พบชุดโจทย์ที่ตรงกับเงื่อนไข</p>
+        </div>
+      )}
+
+      {tiles === null && !error && (
+        <div className={styles.grid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.card}>
+              <div className={`${styles.cardTop} skeleton`} />
+              <div className={styles.cardBody}>
+                <div className="skeleton" style={{ width: 70, height: 12 }} />
+                <div className="skeleton" style={{ width: "75%", height: 20 }} />
+                <div className="skeleton" style={{ width: 60, height: 22, borderRadius: 999 }} />
+                <div className={styles.cardActions}>
+                  <div className="skeleton" style={{ flex: 1, height: 32 }} />
+                  <div className="skeleton" style={{ flex: 1, height: 32 }} />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

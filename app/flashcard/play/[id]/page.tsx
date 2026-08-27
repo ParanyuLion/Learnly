@@ -42,7 +42,28 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
   }
 
   if (error) return <p className="error-banner">{error}</p>;
-  if (!deck) return <p>กำลังโหลด...</p>;
+  if (!deck) {
+    return (
+      <main className="page">
+        <div className="page-header">
+          <h1 className="page-title">
+            <span className="skeleton" style={{ display: "inline-block", width: 160, height: 24 }} />
+          </h1>
+          <Link href="/" className="btn btn-ghost btn-sm">
+            ← กลับหน้าแรก
+          </Link>
+        </div>
+        <div className="skeleton" style={{ width: 80, height: 16, marginBottom: 12 }} />
+        <div className={styles.cardStage}>
+          <div className={`${styles.card} skeleton`} />
+        </div>
+        <div className={styles.actions}>
+          <div className="skeleton" style={{ width: 120, height: 44, borderRadius: 14 }} />
+          <div className="skeleton" style={{ width: 120, height: 44, borderRadius: 14 }} />
+        </div>
+      </main>
+    );
+  }
 
   const won = totalCards > 0 && deck.length === 0;
   const current = deck[0];

@@ -146,7 +146,30 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   }
 
   if (error) return <p className="error-banner">{error}</p>;
-  if (!pool) return <p>กำลังโหลด...</p>;
+  if (!pool) {
+    return (
+      <main className="page">
+        <div className="page-header">
+          <h1 className="page-title">
+            <span className="skeleton" style={{ display: "inline-block", width: 160, height: 24 }} />
+          </h1>
+          <Link href="/" className="btn btn-ghost btn-sm">
+            ← กลับหน้าแรก
+          </Link>
+        </div>
+        <div className={styles.pool}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={`${styles.item} skeleton`} style={{ width: 70, height: 20 }} />
+          ))}
+        </div>
+        <div className={styles.categoryGrid}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className={`${styles.categoryBox} skeleton`} />
+          ))}
+        </div>
+      </main>
+    );
+  }
 
   const won = mode === "immediate" ? totalItems > 0 && pool.length === 0 : revealed && pool.length === 0 && isFullyCorrect();
   const showSubmit = mode === "batch" && pool.length === 0 && !revealed;

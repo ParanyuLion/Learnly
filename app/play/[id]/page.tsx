@@ -52,7 +52,32 @@ export default function PlaySetPage({ params }: { params: { id: string } }) {
   }
 
   if (error) return <p className="error-banner">{error}</p>;
-  if (!cards) return <p>กำลังโหลด...</p>;
+  if (!cards) {
+    return (
+      <main className="page">
+        <div className="page-header">
+          <h1 className="page-title">
+            <span className="skeleton" style={{ display: "inline-block", width: 160, height: 24 }} />
+          </h1>
+          <Link href="/" className="btn btn-ghost btn-sm">
+            ← กลับหน้าแรก
+          </Link>
+        </div>
+        <div className={styles.columns}>
+          <div className={styles.column}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={`${styles.card} skeleton`} />
+            ))}
+          </div>
+          <div className={styles.column}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={`${styles.card} skeleton`} />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const won = matchedPairIds.size > 0 && matchedPairIds.size === cards.length / 2;
   const leftCards = cards.filter((card) => card.side === "left");
