@@ -162,15 +162,41 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
       </div>
 
       <div className={styles.toolbar}>
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          onClick={toggleMode}
-          disabled={hasStarted}
+        <div
+          className={styles.modeSwitch}
+          data-mode={mode}
           title={hasStarted ? "ล็อกโหมดแล้วหลังเริ่มจัดหมวดหมู่" : undefined}
         >
-          โหมด: {mode === "immediate" ? "ตรวจทีละอัน" : "ตรวจทีเดียวตอนจบ"}
-        </button>
+          <button
+            type="button"
+            className={styles.modeLabel}
+            data-active={mode === "immediate"}
+            onClick={() => mode !== "immediate" && toggleMode()}
+            disabled={hasStarted}
+          >
+            ตรวจทีละอัน
+          </button>
+          <button
+            type="button"
+            className={styles.modeTrack}
+            onClick={toggleMode}
+            disabled={hasStarted}
+            role="switch"
+            aria-checked={mode === "batch"}
+            aria-label="สลับโหมดการตรวจคำตอบ"
+          >
+            <span className={styles.modeThumb} />
+          </button>
+          <button
+            type="button"
+            className={styles.modeLabel}
+            data-active={mode === "batch"}
+            onClick={() => mode !== "batch" && toggleMode()}
+            disabled={hasStarted}
+          >
+            ตรวจทีเดียวตอนจบ
+          </button>
+        </div>
         {!won && <span className={styles.progress}>เหลือ {pool.length} ชิ้น</span>}
       </div>
 
