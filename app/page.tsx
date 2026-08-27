@@ -19,9 +19,17 @@ type SortSetSummary = {
   _count: { items: number };
 };
 
+type FlashcardSetSummary = {
+  id: string;
+  title: string;
+  createdAt: string;
+  _count: { cards: number };
+};
+
 type Tile =
   | { type: "match"; id: string; title: string; createdAt: string; count: number }
-  | { type: "sort"; id: string; title: string; createdAt: string; count: number };
+  | { type: "sort"; id: string; title: string; createdAt: string; count: number }
+  | { type: "flashcard"; id: string; title: string; createdAt: string; count: number };
 
 const ACCENTS = ["coral", "mint", "lavender", "yellow"] as const;
 
@@ -39,8 +47,12 @@ export default function HomePage() {
         console.error(err);
         return [] as SortSetSummary[];
       }),
+      fetchJson<FlashcardSetSummary[]>("/api/flashcard-sets").catch((err) => {
+        console.error(err);
+        return [] as FlashcardSetSummary[];
+      }),
     ])
-      .then(([matchSets, sortSets]) => {
+      .then(([matchSets, sortSets, flashcardSets]) => {
         const matchTiles: Tile[] = matchSets.map((s) => ({
           type: "match",
           id: s.id,
@@ -55,7 +67,14 @@ export default function HomePage() {
           createdAt: s.createdAt,
           count: s._count.items,
         }));
-        const merged = [...matchTiles, ...sortTiles].sort(
+        const flashcardTiles: Tile[] = flashcardSets.map((s) => ({
+          type: "flashcard",
+          id: s.id,
+          title: s.title,
+          createdAt: s.createdAt,
+          count: s._count.cards,
+        }));
+        const merged = [...matchTiles, ...sortTiles, ...flashcardTiles].sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setTiles(merged);
@@ -74,6 +93,9 @@ export default function HomePage() {
           <Link href="/sort/edit/new" className="btn btn-outline">
             + เกมจัดหมวดหมู่
           </Link>
+          <Link href="/flashcard/edit/new" className="btn btn-outline">
+            + เกมการ์ดคำศัพท์
+          </Link>
         </div>
       </div>
 
@@ -87,10 +109,26 @@ export default function HomePage() {
 
       <div className={styles.grid}>
         {tiles?.map((tile, i) => {
-          const playHref = tile.type === "match" ? `/play/${tile.id}` : `/sort/play/${tile.id}`;
-          const editHref = tile.type === "match" ? `/edit/${tile.id}` : `/sort/edit/${tile.id}`;
-          const typeLabel = tile.type === "match" ? "จับคู่" : "จัดหมวดหมู่";
-          const countLabel = tile.type === "match" ? `${tile.count} คู่` : `${tile.count} ไอเทม`;
+          const playHref =
+            tile.type === "match"
+              ? `/play/${tile.id}`
+              : tile.type === "sort"
+                ? `/sort/play/${tile.id}`
+                : `/flashcard/play/${tile.id}`;
+          const editHref =
+            tile.type === "match"
+              ? `/edit/${tile.id}`
+              : tile.type === "sort"
+                ? `/sort/edit/${tile.id}`
+                : `/flashcard/edit/${tile.id}`;
+          const typeLabel =
+            tile.type === "match" ? "จับคู่" : tile.type === "sort" ? "จัดหมวดหมู่" : "การ์ดคำศัพท์";
+          const countLabel =
+            tile.type === "match"
+              ? `${tile.count} คู่`
+              : tile.type === "sort"
+                ? `${tile.count} ไอเทม`
+                : `${tile.count} ใบ`;
           return (
             <div key={`${tile.type}-${tile.id}`} className={styles.card}>
               <div className={styles.cardTop} data-accent={ACCENTS[i % ACCENTS.length]} />
