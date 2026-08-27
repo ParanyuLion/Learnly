@@ -244,7 +244,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
               <div className={styles.itemsList}>
                 {items.map((item) => {
                   const correct = isCorrectCategory(item, category);
-                  const removable = mode === "batch" && revealed && !correct;
+                  const removable = mode === "batch" && (!revealed || !correct);
                   return (
                     <button
                       key={item.id}
