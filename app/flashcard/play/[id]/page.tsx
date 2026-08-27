@@ -11,6 +11,13 @@ const QUIZ_ADVANCE_DELAY_MS = 800;
 
 type PlayMode = "flip" | "quiz";
 
+type QuizHistoryEntry = {
+  front: string;
+  chosen: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+};
+
 export default function PlayFlashcardSetPage({ params }: { params: { id: string } }) {
   const [title, setTitle] = useState("");
   const [sourceCards, setSourceCards] = useState<Card[] | null>(null);
@@ -24,6 +31,7 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
   const [quizAnswered, setQuizAnswered] = useState(0);
   const [quizCorrect, setQuizCorrect] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [quizHistory, setQuizHistory] = useState<QuizHistoryEntry[]>([]);
 
   useEffect(() => {
     fetchJson<{ title: string; cards: Card[] }>(`/api/flashcard-sets/${params.id}`)
@@ -64,6 +72,7 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
     setQuizAnswered(0);
     setQuizCorrect(0);
     setSelectedChoice(null);
+    setQuizHistory([]);
   }
 
   function markKnown() {
@@ -81,6 +90,10 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
     const isCorrect = choice === currentQuizCard.back;
     setSelectedChoice(choice);
     if (isCorrect) setQuizCorrect((c) => c + 1);
+    setQuizHistory((prev) => [
+      ...prev,
+      { front: currentQuizCard.front, chosen: choice, correctAnswer: currentQuizCard.back, isCorrect },
+    ]);
     setTimeout(() => {
       setQuizDeck((prev) => (prev ? prev.slice(1) : prev));
       setQuizAnswered((a) => a + 1);
@@ -174,14 +187,30 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
         </div>
       )}
       {wonQuiz && (
-        <div className={styles.winBanner}>
-          <span>
-            เล่นควิซจบแล้ว! ตอบถูก {quizCorrect} จาก {totalCards} ข้อ 🎉
-          </span>
-          <button className="btn btn-primary btn-sm" onClick={playAgain}>
-            เล่นอีกครั้ง
-          </button>
-        </div>
+        <>
+          <div className={styles.winBanner}>
+            <span>
+              เล่นควิซจบแล้ว! ตอบถูก {quizCorrect} จาก {totalCards} ข้อ 🎉
+            </span>
+            <button className="btn btn-primary btn-sm" onClick={playAgain}>
+              เล่นอีกครั้ง
+            </button>
+          </div>
+          <ul className={styles.reviewList}>
+            {quizHistory.map((entry, i) => (
+              <li key={i} className={styles.reviewItem} data-correct={entry.isCorrect}>
+                <span className={styles.reviewIcon}>{entry.isCorrect ? "✓" : "✗"}</span>
+                <div className={styles.reviewBody}>
+                  <span className={styles.reviewFront}>{entry.front}</span>
+                  <span className={styles.reviewAnswer}>
+                    ตอบ: {entry.chosen}
+                    {!entry.isCorrect && <> (เฉลย: {entry.correctAnswer})</>}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {mode === "flip" && !wonFlip && current && (
