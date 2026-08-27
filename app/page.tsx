@@ -33,6 +33,15 @@ type Tile =
 
 const ACCENTS = ["coral", "mint", "lavender", "yellow"] as const;
 
+type TypeFilter = "all" | Tile["type"];
+
+const TYPE_FILTERS: { value: TypeFilter; label: string }[] = [
+  { value: "all", label: "ทั้งหมด" },
+  { value: "match", label: "จับคู่" },
+  { value: "sort", label: "จัดหมวดหมู่" },
+  { value: "flashcard", label: "การ์ดคำศัพท์" },
+];
+
 async function logout() {
   await fetchJson("/api/logout", { method: "POST" });
   window.location.href = "/login";
@@ -43,6 +52,8 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [failedTypes, setFailedTypes] = useState<string[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
   useEffect(() => {
     if (!showCreateModal) return;
@@ -103,6 +114,12 @@ export default function HomePage() {
       .catch((err) => setError(err.message));
   }, []);
 
+  const filteredTiles = tiles?.filter((tile) => {
+    const matchesType = typeFilter === "all" || tile.type === typeFilter;
+    const matchesSearch = tile.title.toLowerCase().includes(search.trim().toLowerCase());
+    return matchesType && matchesSearch;
+  });
+
   return (
     <main className="page">
       <div className="page-header">
@@ -155,14 +172,45 @@ export default function HomePage() {
           โหลดชุดโจทย์บางประเภทไม่สำเร็จ: {failedTypes.join(", ")}
         </p>
       )}
+
+      {tiles !== null && tiles.length > 0 && (
+        <div className={styles.toolbar}>
+          <input
+            type="text"
+            className={`text-input ${styles.searchInput}`}
+            placeholder="ค้นหาชื่อชุดโจทย์..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div className={styles.filterPills}>
+            {TYPE_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                className={styles.filterPill}
+                data-active={typeFilter === f.value}
+                onClick={() => setTypeFilter(f.value)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {tiles?.length === 0 && failedTypes.length === 0 && (
         <div className="empty-state">
           <p>ยังไม่มีชุดโจทย์ สร้างชุดแรกกันเลย</p>
         </div>
       )}
+      {tiles !== null && tiles.length > 0 && filteredTiles?.length === 0 && (
+        <div className="empty-state">
+          <p>ไม่พบชุดโจทย์ที่ตรงกับเงื่อนไข</p>
+        </div>
+      )}
 
       <div className={styles.grid}>
-        {tiles?.map((tile, i) => {
+        {filteredTiles?.map((tile, i) => {
           const playHref =
             tile.type === "match"
               ? `/play/${tile.id}`
