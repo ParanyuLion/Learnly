@@ -1,4 +1,4 @@
-# StudyWeb — Matching Game
+# Learnly
 
 ## Local development
 0. `cp .env.example .env` (prerequisite — sets `DATABASE_URL` for Prisma)

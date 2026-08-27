@@ -5,7 +5,7 @@ import { Kodchasan, Sarabun } from "next/font/google";
 const kodchasan = Kodchasan({ subsets: ["thai", "latin"], weight: ["600", "700"], variable: "--font-display" });
 const sarabun = Sarabun({ subsets: ["thai", "latin"], weight: ["400", "600", "700"], variable: "--font-body" });
 
-export const metadata = { title: "StudyWeb" };
+export const metadata = { title: "Learnly" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
