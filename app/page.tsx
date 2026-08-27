@@ -42,6 +42,16 @@ export default function HomePage() {
   const [tiles, setTiles] = useState<Tile[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [failedTypes, setFailedTypes] = useState<string[]>([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    if (!showCreateModal) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setShowCreateModal(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [showCreateModal]);
 
   useEffect(() => {
     const failed: string[] = [];
@@ -98,22 +108,45 @@ export default function HomePage() {
       <div className="page-header">
         <h1 className="page-title">ชุดโจทย์ของฉัน</h1>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <div style={{ display: "flex", gap: 8 }}>
-            <Link href="/edit/new" className="btn btn-primary">
-              + เกมจับคู่
-            </Link>
-            <Link href="/sort/edit/new" className="btn btn-outline">
-              + เกมจัดหมวดหมู่
-            </Link>
-            <Link href="/flashcard/edit/new" className="btn btn-outline">
-              + เกมการ์ดคำศัพท์
-            </Link>
-          </div>
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            + สร้างชุดโจทย์
+          </button>
           <button className="btn btn-ghost btn-sm" onClick={logout}>
             ออกจากระบบ
           </button>
         </div>
       </div>
+
+      {showCreateModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
+          <div
+            className={styles.modalBox}
+            role="dialog"
+            aria-modal="true"
+            aria-label="เลือกประเภทเกมที่จะสร้าง"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className={styles.modalTitle}>สร้างชุดโจทย์แบบไหน?</h2>
+            <div className={styles.modalOptions}>
+              <Link href="/edit/new" className={styles.modalOption} data-accent="coral">
+                <span className={styles.modalOptionTitle}>เกมจับคู่</span>
+                <span className={styles.modalOptionDesc}>จับคู่คำศัพท์ซ้าย-ขวา</span>
+              </Link>
+              <Link href="/sort/edit/new" className={styles.modalOption} data-accent="mint">
+                <span className={styles.modalOptionTitle}>เกมจัดหมวดหมู่</span>
+                <span className={styles.modalOptionDesc}>จัดไอเทมลงหมวดหมู่ให้ถูก</span>
+              </Link>
+              <Link href="/flashcard/edit/new" className={styles.modalOption} data-accent="lavender">
+                <span className={styles.modalOptionTitle}>เกมการ์ดคำศัพท์</span>
+                <span className={styles.modalOptionDesc}>พลิกการ์ดทบทวนคำศัพท์</span>
+              </Link>
+            </div>
+            <button className="btn btn-ghost btn-sm" onClick={() => setShowCreateModal(false)}>
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && <p className="error-banner">{error}</p>}
       {tiles === null && !error && <p>กำลังโหลด...</p>}
