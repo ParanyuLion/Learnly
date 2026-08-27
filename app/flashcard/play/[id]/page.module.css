@@ -1,0 +1,62 @@
+.winBanner {
+  background: var(--color-yellow);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.progress {
+  color: var(--color-ink-soft);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.cardStage {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  min-height: 200px;
+  padding: 32px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: var(--color-surface);
+  border: 3px solid #eee0ff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+  color: var(--color-ink);
+}
+
+.card[data-flipped="true"] {
+  border-color: var(--color-mint);
+  color: var(--color-mint-dark);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.knowBtn {
+  background: var(--color-mint);
+  color: white;
+}
+
+.dontKnowBtn {
+  background: var(--color-coral);
+  color: white;
+}
