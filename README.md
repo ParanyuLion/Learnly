@@ -2,6 +2,7 @@
 
 ## Local development
 0. `cp .env.example .env` (prerequisite — sets `DATABASE_URL` for Prisma)
+0.5. Set real values for `SITE_PASSCODE` and `SESSION_SECRET` in `.env` — the app fails closed (refuses all requests) without them.
 1. `npm install`
 2. `npm run prisma:migrate` (creates local `dev.db`)
 3. `npm run dev` — open http://localhost:3000
@@ -20,4 +21,6 @@
 4. Import the repo into https://vercel.com, set environment variables:
    - `TURSO_DATABASE_URL`
    - `TURSO_AUTH_TOKEN`
+   - `SITE_PASSCODE`
+   - `SESSION_SECRET`
 5. Deploy. Vercel builds with `npm run build` automatically.
