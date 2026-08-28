@@ -109,16 +109,14 @@
   background: none;
   border: none;
   border-radius: 50%;
-  color: var(--color-ink-soft);
-  opacity: 0.6;
-  font-size: 0.95rem;
+  color: var(--color-ink);
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
-  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .deleteBtn:hover {
-  opacity: 1;
   background: var(--color-red-bg);
   color: var(--color-coral-dark);
 }
