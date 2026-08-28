@@ -96,6 +96,16 @@
   flex: 1;
 }
 
+.deleteBtn {
+  flex: 0 0 auto !important;
+  border-color: var(--color-red) !important;
+  color: var(--color-coral-dark) !important;
+}
+
+.deleteBtn:hover {
+  background: var(--color-red-bg);
+}
+
 .typeTag {
   font-family: var(--font-sans);
   font-size: 0.75rem;

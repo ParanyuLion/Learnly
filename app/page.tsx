@@ -54,6 +54,7 @@ export default function HomePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!showCreateModal) return;
@@ -113,6 +114,27 @@ export default function HomePage() {
       })
       .catch((err) => setError(err.message));
   }, []);
+
+  async function deleteTile(tile: Tile) {
+    if (!window.confirm(`ลบ "${tile.title}" ใช่ไหม? การกระทำนี้ย้อนกลับไม่ได้`)) return;
+
+    const endpoint =
+      tile.type === "match"
+        ? `/api/sets/${tile.id}`
+        : tile.type === "sort"
+          ? `/api/sort-sets/${tile.id}`
+          : `/api/flashcard-sets/${tile.id}`;
+
+    setDeletingId(tile.id);
+    try {
+      await fetchJson(endpoint, { method: "DELETE" });
+      setTiles((prev) => (prev ? prev.filter((t) => !(t.type === tile.type && t.id === tile.id)) : prev));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "ลบไม่สำเร็จ");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const filteredTiles = tiles?.filter((tile) => {
     const matchesType = typeFilter === "all" || tile.type === typeFilter;
@@ -263,6 +285,15 @@ export default function HomePage() {
                   <Link href={editHref} className="btn btn-outline btn-sm">
                     แก้ไข
                   </Link>
+                  <button
+                    type="button"
+                    className={`btn btn-outline btn-sm ${styles.deleteBtn}`}
+                    onClick={() => deleteTile(tile)}
+                    disabled={deletingId === tile.id}
+                    aria-label={`ลบ ${tile.title}`}
+                  >
+                    {deletingId === tile.id ? "..." : "ลบ"}
+                  </button>
                 </div>
               </div>
             </div>
