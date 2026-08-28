@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchJson } from "@/lib/fetch-json";
+import { AlertDialog } from "@/components/AlertDialog";
 import styles from "./page.module.css";
 
 type PairInput = { left: string; right: string };
@@ -15,6 +16,7 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(!isNew);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isNew) return;
@@ -50,7 +52,7 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
       .filter((p) => p.left && p.right);
 
     if (!title.trim() || cleanPairs.length === 0) {
-      alert("ต้องมีชื่อชุดโจทย์และคู่คำอย่างน้อย 1 คู่");
+      setAlertMessage("ต้องมีชื่อชุดโจทย์และคู่คำอย่างน้อย 1 คู่");
       return;
     }
 
@@ -76,7 +78,7 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
         });
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
+      setAlertMessage(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
       setSaving(false);
       return;
     }
@@ -89,6 +91,7 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="page">
+      <AlertDialog message={alertMessage} onClose={() => setAlertMessage(null)} />
       <div className="page-header">
         <h1 className="page-title">{isNew ? "สร้างชุดโจทย์ใหม่" : "แก้ไขชุดโจทย์"}</h1>
       </div>

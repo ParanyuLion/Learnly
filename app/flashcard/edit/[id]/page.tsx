@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchJson } from "@/lib/fetch-json";
+import { AlertDialog } from "@/components/AlertDialog";
 import styles from "./page.module.css";
 
 type CardInput = { front: string; back: string };
@@ -15,6 +16,7 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
   const [loading, setLoading] = useState(!isNew);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isNew) return;
@@ -52,7 +54,7 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
       .filter((c) => c.front && c.back);
 
     if (!title.trim() || cleanCards.length === 0) {
-      alert("ต้องมีชื่อชุดโจทย์และการ์ดอย่างน้อย 1 ใบ");
+      setAlertMessage("ต้องมีชื่อชุดโจทย์และการ์ดอย่างน้อย 1 ใบ");
       return;
     }
 
@@ -78,7 +80,7 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
         });
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
+      setAlertMessage(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
       setSaving(false);
       return;
     }
@@ -91,6 +93,7 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
 
   return (
     <main className="page">
+      <AlertDialog message={alertMessage} onClose={() => setAlertMessage(null)} />
       <div className="page-header">
         <h1 className="page-title">{isNew ? "สร้างชุดการ์ดใหม่" : "แก้ไขชุดการ์ด"}</h1>
       </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchJson } from "@/lib/fetch-json";
+import { AlertDialog } from "@/components/AlertDialog";
 import styles from "./page.module.css";
 
 type CategoryInput = { name: string; items: string[] };
@@ -18,6 +19,7 @@ export default function EditSortSetPage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(!isNew);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isNew) return;
@@ -83,7 +85,7 @@ export default function EditSortSetPage({ params }: { params: { id: string } }) 
       .filter((c) => c.name && c.items.length > 0);
 
     if (!title.trim() || cleanCategories.length < 2) {
-      alert("ต้องมีชื่อชุดโจทย์และอย่างน้อย 2 หมวดหมู่ (แต่ละหมวดต้องมีอย่างน้อย 1 ไอเทม)");
+      setAlertMessage("ต้องมีชื่อชุดโจทย์และอย่างน้อย 2 หมวดหมู่ (แต่ละหมวดต้องมีอย่างน้อย 1 ไอเทม)");
       return;
     }
 
@@ -109,7 +111,7 @@ export default function EditSortSetPage({ params }: { params: { id: string } }) 
         });
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
+      setAlertMessage(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
       setSaving(false);
       return;
     }
@@ -122,6 +124,7 @@ export default function EditSortSetPage({ params }: { params: { id: string } }) 
 
   return (
     <main className="page">
+      <AlertDialog message={alertMessage} onClose={() => setAlertMessage(null)} />
       <div className="page-header">
         <h1 className="page-title">{isNew ? "สร้างเกมจัดหมวดหมู่ใหม่" : "แก้ไขเกมจัดหมวดหมู่"}</h1>
       </div>

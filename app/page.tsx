@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchJson } from "@/lib/fetch-json";
+import { AlertDialog } from "@/components/AlertDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import styles from "./page.module.css";
 
 type MatchSetSummary = {
@@ -55,6 +57,8 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Tile | null>(null);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!showCreateModal) return;
@@ -115,8 +119,10 @@ export default function HomePage() {
       .catch((err) => setError(err.message));
   }, []);
 
-  async function deleteTile(tile: Tile) {
-    if (!window.confirm(`ลบ "${tile.title}" ใช่ไหม? การกระทำนี้ย้อนกลับไม่ได้`)) return;
+  async function confirmDelete() {
+    const tile = pendingDelete;
+    if (!tile) return;
+    setPendingDelete(null);
 
     const endpoint =
       tile.type === "match"
@@ -130,7 +136,7 @@ export default function HomePage() {
       await fetchJson(endpoint, { method: "DELETE" });
       setTiles((prev) => (prev ? prev.filter((t) => !(t.type === tile.type && t.id === tile.id)) : prev));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "ลบไม่สำเร็จ");
+      setAlertMessage(err instanceof Error ? err.message : "ลบไม่สำเร็จ");
     } finally {
       setDeletingId(null);
     }
@@ -144,6 +150,13 @@ export default function HomePage() {
 
   return (
     <main className="page">
+      <AlertDialog message={alertMessage} onClose={() => setAlertMessage(null)} />
+      <ConfirmDialog
+        message={pendingDelete ? `ลบ "${pendingDelete.title}" ใช่ไหม? การกระทำนี้ย้อนกลับไม่ได้` : null}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+        confirmLabel="ลบ"
+      />
       <div className="page-header">
         <h1 className="page-title">ชุดโจทย์ของฉัน</h1>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
@@ -157,9 +170,9 @@ export default function HomePage() {
       </div>
 
       {showCreateModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
+        <div className="dialog-overlay" onClick={() => setShowCreateModal(false)}>
           <div
-            className={styles.modalBox}
+            className="dialog-box"
             role="dialog"
             aria-modal="true"
             aria-label="เลือกประเภทเกมที่จะสร้าง"
@@ -288,7 +301,7 @@ export default function HomePage() {
                   <button
                     type="button"
                     className={`btn btn-outline btn-sm ${styles.deleteBtn}`}
-                    onClick={() => deleteTile(tile)}
+                    onClick={() => setPendingDelete(tile)}
                     disabled={deletingId === tile.id}
                     aria-label={`ลบ ${tile.title}`}
                   >
