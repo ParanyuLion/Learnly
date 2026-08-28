@@ -14,6 +14,7 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
   const [pairs, setPairs] = useState<PairInput[]>([{ left: "", right: "" }]);
   const [loading, setLoading] = useState(!isNew);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (isNew) return;
@@ -42,6 +43,8 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
   }
 
   async function save() {
+    if (saving) return;
+
     const cleanPairs = pairs
       .map((p) => ({ left: p.left.trim(), right: p.right.trim() }))
       .filter((p) => p.left && p.right);
@@ -51,6 +54,7 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
       return;
     }
 
+    setSaving(true);
     try {
       if (isNew) {
         const created = await fetchJson<{ id: string }>("/api/sets", {
@@ -73,6 +77,7 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
+      setSaving(false);
       return;
     }
 
@@ -126,8 +131,8 @@ export default function EditSetPage({ params }: { params: { id: string } }) {
           <button className="btn btn-ghost" onClick={() => router.push("/")}>
             ยกเลิก
           </button>
-          <button className="btn btn-primary" onClick={save}>
-            บันทึก
+          <button className="btn btn-primary" onClick={save} disabled={saving}>
+            {saving ? "กำลังบันทึก..." : "บันทึก"}
           </button>
         </div>
       </div>
