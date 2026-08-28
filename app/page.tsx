@@ -287,6 +287,15 @@ export default function HomePage() {
           return (
             <div key={`${tile.type}-${tile.id}`} className={styles.card}>
               <div className={styles.cardTop} data-accent={ACCENTS[i % ACCENTS.length]} />
+              <button
+                type="button"
+                className={styles.deleteBtn}
+                onClick={() => setPendingDelete(tile)}
+                disabled={deletingId === tile.id}
+                aria-label={`ลบ ${tile.title}`}
+              >
+                🗑
+              </button>
               <div className={styles.cardBody}>
                 <span className={styles.typeTag}>{typeLabel}</span>
                 <span className={styles.cardTitle}>{tile.title}</span>
@@ -298,15 +307,6 @@ export default function HomePage() {
                   <Link href={editHref} className="btn btn-outline btn-sm">
                     แก้ไข
                   </Link>
-                  <button
-                    type="button"
-                    className={`btn btn-outline btn-sm ${styles.deleteBtn}`}
-                    onClick={() => setPendingDelete(tile)}
-                    disabled={deletingId === tile.id}
-                    aria-label={`ลบ ${tile.title}`}
-                  >
-                    {deletingId === tile.id ? "..." : "ลบ"}
-                  </button>
                 </div>
               </div>
             </div>

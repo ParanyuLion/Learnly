@@ -44,6 +44,7 @@
 }
 
 .card {
+  position: relative;
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-pop);
@@ -97,13 +98,34 @@
 }
 
 .deleteBtn {
-  flex: 0 0 auto !important;
-  border-color: var(--color-red) !important;
-  color: var(--color-coral-dark) !important;
+  position: absolute;
+  top: 16px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-ink-soft);
+  opacity: 0.6;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .deleteBtn:hover {
+  opacity: 1;
   background: var(--color-red-bg);
+  color: var(--color-coral-dark);
+}
+
+.deleteBtn:disabled {
+  cursor: default;
+  opacity: 0.4;
 }
 
 .typeTag {
