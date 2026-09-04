@@ -159,6 +159,12 @@
   background: #e3fbf0;
 }
 
+.childList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .categoryHeaderBtn {
   display: flex;
   align-items: center;

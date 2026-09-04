@@ -32,11 +32,14 @@ model SortSet {
 }
 
 model SortCategory {
-  id    String     @id @default(cuid())
-  setId String
-  set   SortSet    @relation(fields: [setId], references: [id], onDelete: Cascade)
-  name  String
-  items SortItem[]
+  id       String         @id @default(cuid())
+  setId    String
+  set      SortSet        @relation(fields: [setId], references: [id], onDelete: Cascade)
+  name     String
+  parentId String?
+  parent   SortCategory?  @relation("CategoryChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children SortCategory[] @relation("CategoryChildren")
+  items    SortItem[]
 }
 
 model SortItem {

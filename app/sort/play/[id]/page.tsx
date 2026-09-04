@@ -2,7 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { shuffleItems, isCorrectCategory, type Item, type Category } from "@/lib/sort-game";
+import {
+  shuffleItems,
+  isCorrectCategory,
+  getChildren,
+  isLeafCategory,
+  getLeafCategories,
+  type Item,
+  type Category,
+} from "@/lib/sort-game";
 import { fetchJson } from "@/lib/fetch-json";
 import styles from "./page.module.css";
 
@@ -20,6 +28,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   const [correctCategoryId, setCorrectCategoryId] = useState<string | null>(null);
   const [mode, setMode] = useState<CheckMode>("immediate");
   const [revealed, setRevealed] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
   // FLIP-animation bookkeeping: track each item button's current DOM node so we
@@ -72,19 +81,16 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     fetchJson<{
       title: string;
-      categories: { id: string; name: string; items: { id: string; text: string; categoryId?: string }[] }[];
+      categories: { id: string; name: string; parentId: string | null }[];
+      items: { id: string; text: string; categoryId: string }[];
     }>(`/api/sort-sets/${params.id}`)
       .then((data) => {
         setTitle(data.title);
-        const cats: Category[] = data.categories.map((c) => ({ id: c.id, name: c.name }));
-        const allItems: Item[] = data.categories.flatMap((c) =>
-          c.items.map((i) => ({ id: i.id, text: i.text, categoryId: c.id }))
-        );
-        setCategories(cats);
-        setSourceItems(allItems);
-        setTotalItems(allItems.length);
-        setPool(shuffleItems(allItems));
-        setPlaced(Object.fromEntries(cats.map((c) => [c.id, []])));
+        setCategories(data.categories);
+        setSourceItems(data.items);
+        setTotalItems(data.items.length);
+        setPool(shuffleItems(data.items));
+        setPlaced(Object.fromEntries(data.categories.map((c) => [c.id, []])));
       })
       .catch((err) => setError(err.message));
   }, [params.id]);
@@ -98,11 +104,21 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
     setWrongCategoryId(null);
     setCorrectCategoryId(null);
     setRevealed(false);
+    setExpandedIds(new Set());
   }
 
   function toggleMode() {
     if (hasStarted) return;
     setMode((m) => (m === "immediate" ? "batch" : "immediate"));
+  }
+
+  function toggleExpand(categoryId: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) next.delete(categoryId);
+      else next.add(categoryId);
+      return next;
+    });
   }
 
   function selectItem(item: Item) {
@@ -122,6 +138,11 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   }
 
   function clickCategory(category: Category) {
+    if (!isLeafCategory(categories, category.id)) {
+      toggleExpand(category.id);
+      return;
+    }
+
     if (!selected) return;
 
     if (mode === "batch") {
@@ -142,7 +163,9 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   }
 
   function isFullyCorrect() {
-    return categories.every((c) => (placed[c.id] ?? []).every((item) => isCorrectCategory(item, c)));
+    return getLeafCategories(categories).every((c) =>
+      (placed[c.id] ?? []).every((item) => isCorrectCategory(item, c))
+    );
   }
 
   if (error) return <p className="error-banner">{error}</p>;
@@ -174,6 +197,73 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   const won = mode === "immediate" ? totalItems > 0 && pool.length === 0 : revealed && pool.length === 0 && isFullyCorrect();
   const showSubmit = mode === "batch" && pool.length === 0 && !revealed;
   const showResultBanner = mode === "batch" && revealed && !isFullyCorrect();
+
+  function renderCategoryNode(category: Category, depth: number) {
+    const isLeaf = isLeafCategory(categories, category.id);
+
+    if (isLeaf) {
+      const items = placed[category.id] ?? [];
+      return (
+        <div
+          key={category.id}
+          className={styles.categoryBox}
+          style={depth > 0 ? { marginLeft: depth * 16 } : undefined}
+          data-wrong={wrongCategoryId === category.id}
+          data-correct={correctCategoryId === category.id}
+        >
+          <button type="button" className={styles.categoryHeaderBtn} onClick={() => clickCategory(category)}>
+            <span className={styles.categoryName}>{category.name}</span>
+            <span className={`badge ${styles.countBadge}`}>{items.length} ชิ้น</span>
+          </button>
+          {items.length === 0 && <p className={styles.emptyHint}>คลิกชื่อหมวดหมู่เพื่อวางไอเทม</p>}
+          <div className={styles.itemsList}>
+            {items.map((item) => {
+              const correct = isCorrectCategory(item, category);
+              const removable = mode === "batch" && (!revealed || !correct);
+              return (
+                <button
+                  key={item.id}
+                  ref={itemFlipRef(item.id)}
+                  type="button"
+                  className={styles.placedItem}
+                  data-state={mode === "batch" && !revealed ? undefined : correct ? "correct" : "incorrect"}
+                  disabled={!removable}
+                  onClick={() => returnToPool(item, category.id)}
+                >
+                  {item.text}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    const isExpanded = expandedIds.has(category.id);
+    const children = getChildren(categories, category.id);
+
+    return (
+      <div
+        key={category.id}
+        className={styles.categoryBox}
+        style={depth > 0 ? { marginLeft: depth * 16 } : undefined}
+      >
+        <button
+          type="button"
+          className={styles.categoryHeaderBtn}
+          onClick={() => clickCategory(category)}
+          aria-expanded={isExpanded}
+        >
+          <span className={styles.categoryName}>
+            {isExpanded ? "▾" : "▸"} {category.name}
+          </span>
+        </button>
+        {isExpanded && (
+          <div className={styles.childList}>{children.map((child) => renderCategoryNode(child, depth + 1))}</div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <main className="page">
@@ -250,42 +340,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
       </div>
 
       <div className={styles.categoryGrid}>
-        {categories.map((category) => {
-          const items = placed[category.id] ?? [];
-          return (
-            <div
-              key={category.id}
-              className={styles.categoryBox}
-              data-wrong={wrongCategoryId === category.id}
-              data-correct={correctCategoryId === category.id}
-            >
-              <button type="button" className={styles.categoryHeaderBtn} onClick={() => clickCategory(category)}>
-                <span className={styles.categoryName}>{category.name}</span>
-                <span className={`badge ${styles.countBadge}`}>{items.length} ชิ้น</span>
-              </button>
-              {items.length === 0 && <p className={styles.emptyHint}>คลิกชื่อหมวดหมู่เพื่อวางไอเทม</p>}
-              <div className={styles.itemsList}>
-                {items.map((item) => {
-                  const correct = isCorrectCategory(item, category);
-                  const removable = mode === "batch" && (!revealed || !correct);
-                  return (
-                    <button
-                      key={item.id}
-                      ref={itemFlipRef(item.id)}
-                      type="button"
-                      className={styles.placedItem}
-                      data-state={mode === "batch" && !revealed ? undefined : correct ? "correct" : "incorrect"}
-                      disabled={!removable}
-                      onClick={() => returnToPool(item, category.id)}
-                    >
-                      {item.text}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+        {getChildren(categories, null).map((category) => renderCategoryNode(category, 0))}
       </div>
 
       {showSubmit && (

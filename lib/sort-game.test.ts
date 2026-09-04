@@ -1,9 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { shuffleItems, isCorrectCategory, type Item, type Category } from "./sort-game";
+import {
+  shuffleItems,
+  isCorrectCategory,
+  getChildren,
+  isLeafCategory,
+  getLeafCategories,
+  type Item,
+  type Category,
+} from "./sort-game";
 
 const categories: Category[] = [
-  { id: "c1", name: "Fruit" },
-  { id: "c2", name: "Vegetable" },
+  { id: "c1", name: "Fruit", parentId: null },
+  { id: "c2", name: "Vegetable", parentId: null },
 ];
 
 const items: Item[] = [
@@ -40,5 +48,62 @@ describe("isCorrectCategory", () => {
       const correct = categories.find((c) => c.id === item.categoryId)!;
       expect(isCorrectCategory(item, correct)).toBe(true);
     }
+  });
+});
+
+const nestedCategories: Category[] = [
+  { id: "root1", name: "Animals", parentId: null },
+  { id: "root2", name: "Plants", parentId: null },
+  { id: "child1", name: "Mammals", parentId: "root1" },
+  { id: "child2", name: "Birds", parentId: "root1" },
+  { id: "grandchild1", name: "Dogs", parentId: "child1" },
+];
+
+describe("getChildren", () => {
+  it("returns root-level categories when parentId is null", () => {
+    const roots = getChildren(nestedCategories, null);
+    expect(roots.map((c) => c.id).sort()).toEqual(["root1", "root2"]);
+  });
+
+  it("returns the direct children of a mid-tree parent", () => {
+    const children = getChildren(nestedCategories, "root1");
+    expect(children.map((c) => c.id).sort()).toEqual(["child1", "child2"]);
+  });
+
+  it("returns an empty array for a leaf with no children", () => {
+    expect(getChildren(nestedCategories, "child2")).toEqual([]);
+  });
+
+  it("returns an empty array for an empty category list", () => {
+    expect(getChildren([], null)).toEqual([]);
+  });
+});
+
+describe("isLeafCategory", () => {
+  it("returns false for a category that has children", () => {
+    expect(isLeafCategory(nestedCategories, "root1")).toBe(false);
+  });
+
+  it("returns true for a category with no children", () => {
+    expect(isLeafCategory(nestedCategories, "child2")).toBe(true);
+  });
+
+  it("returns true for a grandchild leaf", () => {
+    expect(isLeafCategory(nestedCategories, "grandchild1")).toBe(true);
+  });
+});
+
+describe("getLeafCategories", () => {
+  it("returns only categories with no children", () => {
+    const leaves = getLeafCategories(nestedCategories).map((c) => c.id).sort();
+    expect(leaves).toEqual(["child2", "grandchild1", "root2"]);
+  });
+
+  it("returns an empty array for an empty category list", () => {
+    expect(getLeafCategories([])).toEqual([]);
+  });
+
+  it("treats every category as a leaf when none has children", () => {
+    expect(getLeafCategories(categories).map((c) => c.id).sort()).toEqual(["c1", "c2"]);
   });
 });
