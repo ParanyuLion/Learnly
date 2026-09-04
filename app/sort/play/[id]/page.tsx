@@ -9,6 +9,7 @@ import {
   isLeafCategory,
   getLeafCategories,
   countPlacedInSubtree,
+  getCategoryDepth,
   type Item,
   type Category,
 } from "@/lib/sort-game";
@@ -233,6 +234,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
 
   function renderCategoryNode(category: Category) {
     const isLeaf = isLeafCategory(categories, category.id);
+    const depthMod = getCategoryDepth(categories, category.id) % 4;
 
     if (isLeaf) {
       const items = placed[category.id] ?? [];
@@ -240,6 +242,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
         <div
           key={category.id}
           className={styles.categoryBox}
+          data-depth={depthMod}
           data-wrong={wrongCategoryId === category.id}
           data-correct={correctCategoryId === category.id}
         >
@@ -258,6 +261,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
                   ref={itemFlipRef(item.id)}
                   type="button"
                   className={styles.placedItem}
+                  data-depth={depthMod}
                   data-state={mode === "batch" && !revealed ? undefined : correct ? "correct" : "incorrect"}
                   disabled={!removable}
                   onClick={() => returnToPool(item, category.id)}
@@ -275,7 +279,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
     const children = getChildren(categories, category.id);
 
     return (
-      <div key={category.id} className={styles.categoryBox}>
+      <div key={category.id} className={styles.categoryBox} data-depth={depthMod}>
         <button
           type="button"
           className={styles.categoryHeaderBtn}

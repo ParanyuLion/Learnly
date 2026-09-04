@@ -28,6 +28,14 @@ export function getLeafCategories<T extends Category>(categories: T[]): T[] {
   return categories.filter((c) => isLeafCategory(categories, c.id));
 }
 
+// Nesting depth of a category: 0 for a root category, 1 for its direct
+// children, and so on. Returns 0 for an id not present in the list.
+export function getCategoryDepth(categories: Category[], categoryId: string): number {
+  const category = categories.find((c) => c.id === categoryId);
+  if (!category || category.parentId === null) return 0;
+  return 1 + getCategoryDepth(categories, category.parentId);
+}
+
 // Count of items currently placed anywhere in categoryId's subtree
 // (categoryId's own placed items if it's a leaf itself). `placed` maps a
 // leaf category id to the items currently placed there during play. Used to

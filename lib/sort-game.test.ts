@@ -6,6 +6,7 @@ import {
   isLeafCategory,
   getLeafCategories,
   countPlacedInSubtree,
+  getCategoryDepth,
   type Item,
   type Category,
 } from "./sort-game";
@@ -143,5 +144,23 @@ describe("countPlacedInSubtree", () => {
 
   it("returns 0 for a category missing from the placed map entirely", () => {
     expect(countPlacedInSubtree(nestedCategories, {}, "root1")).toBe(0);
+  });
+});
+
+describe("getCategoryDepth", () => {
+  it("returns 0 for a root category", () => {
+    expect(getCategoryDepth(nestedCategories, "root1")).toBe(0);
+  });
+
+  it("returns 1 for a direct child of a root category", () => {
+    expect(getCategoryDepth(nestedCategories, "child1")).toBe(1);
+  });
+
+  it("returns 2 for a grandchild", () => {
+    expect(getCategoryDepth(nestedCategories, "grandchild1")).toBe(2);
+  });
+
+  it("returns 0 for an id not present in the list", () => {
+    expect(getCategoryDepth(nestedCategories, "missing")).toBe(0);
   });
 });
