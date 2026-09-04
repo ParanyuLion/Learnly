@@ -5,7 +5,7 @@ import {
   getChildren,
   isLeafCategory,
   getLeafCategories,
-  countItemsInSubtree,
+  countPlacedInSubtree,
   type Item,
   type Category,
 } from "./sort-game";
@@ -116,22 +116,32 @@ const nestedItems: Item[] = [
   { id: "ni4", text: "Rose", categoryId: "root2" }, // Plants
 ];
 
-describe("countItemsInSubtree", () => {
-  it("returns the item count of a leaf category directly", () => {
-    expect(countItemsInSubtree(nestedCategories, nestedItems, "child2")).toBe(2);
+const placed: Record<string, Item[]> = {
+  child2: [nestedItems[0]], // 1 of 2 Birds items placed so far
+  grandchild1: [nestedItems[2]], // Dogs item placed
+  root2: [], // Plants item not placed yet
+};
+
+describe("countPlacedInSubtree", () => {
+  it("returns the placed count of a leaf category directly", () => {
+    expect(countPlacedInSubtree(nestedCategories, placed, "child2")).toBe(1);
   });
 
-  it("sums items across all descendant leaves of a mid-tree container", () => {
-    // root1 (Animals) -> child1 (Mammals) -> grandchild1 (Dogs, 1 item)
-    //                  -> child2 (Birds, 2 items)
-    expect(countItemsInSubtree(nestedCategories, nestedItems, "root1")).toBe(3);
+  it("sums placed items across all descendant leaves of a mid-tree container", () => {
+    // root1 (Animals) -> child1 (Mammals) -> grandchild1 (Dogs, 1 placed)
+    //                  -> child2 (Birds, 1 placed)
+    expect(countPlacedInSubtree(nestedCategories, placed, "root1")).toBe(2);
   });
 
   it("sums through an intermediate container with a single leaf descendant", () => {
-    expect(countItemsInSubtree(nestedCategories, nestedItems, "child1")).toBe(1);
+    expect(countPlacedInSubtree(nestedCategories, placed, "child1")).toBe(1);
   });
 
-  it("returns 0 for a leaf category with no items", () => {
-    expect(countItemsInSubtree(nestedCategories, [], "root2")).toBe(0);
+  it("returns 0 for a leaf category with nothing placed yet", () => {
+    expect(countPlacedInSubtree(nestedCategories, placed, "root2")).toBe(0);
+  });
+
+  it("returns 0 for a category missing from the placed map entirely", () => {
+    expect(countPlacedInSubtree(nestedCategories, {}, "root1")).toBe(0);
   });
 });

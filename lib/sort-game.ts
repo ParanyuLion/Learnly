@@ -28,15 +28,20 @@ export function getLeafCategories<T extends Category>(categories: T[]): T[] {
   return categories.filter((c) => isLeafCategory(categories, c.id));
 }
 
-// Total item count across every leaf in categoryId's subtree (categoryId's
-// own items if it's a leaf itself). Used to preview a container category's
-// size before it's expanded.
-export function countItemsInSubtree(categories: Category[], items: Item[], categoryId: string): number {
+// Count of items currently placed anywhere in categoryId's subtree
+// (categoryId's own placed items if it's a leaf itself). `placed` maps a
+// leaf category id to the items currently placed there during play. Used to
+// preview a container category's live progress before it's expanded.
+export function countPlacedInSubtree(
+  categories: Category[],
+  placed: Record<string, Item[]>,
+  categoryId: string
+): number {
   if (isLeafCategory(categories, categoryId)) {
-    return items.filter((i) => i.categoryId === categoryId).length;
+    return (placed[categoryId] ?? []).length;
   }
   return getChildren(categories, categoryId).reduce(
-    (sum, child) => sum + countItemsInSubtree(categories, items, child.id),
+    (sum, child) => sum + countPlacedInSubtree(categories, placed, child.id),
     0
   );
 }

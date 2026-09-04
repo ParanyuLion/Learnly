@@ -197,6 +197,18 @@
   margin: 4px 0 0;
 }
 
+.childPreviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.childPreviewItem {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  font-weight: 600;
+}
+
 .itemsList {
   display: flex;
   flex-wrap: wrap;
