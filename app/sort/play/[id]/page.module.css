@@ -127,6 +127,26 @@
   transition: transform 0.12s ease, border-color 0.12s ease;
 }
 
+.item[data-depth="0"] {
+  border-color: var(--color-coral);
+  background: color-mix(in srgb, var(--color-coral) 15%, white);
+}
+
+.item[data-depth="1"] {
+  border-color: var(--color-mint);
+  background: color-mix(in srgb, var(--color-mint) 15%, white);
+}
+
+.item[data-depth="2"] {
+  border-color: var(--color-lavender-dark);
+  background: color-mix(in srgb, var(--color-lavender) 30%, white);
+}
+
+.item[data-depth="3"] {
+  border-color: var(--color-yellow);
+  background: color-mix(in srgb, var(--color-yellow) 20%, white);
+}
+
 .item[data-selected="true"] {
   transform: scale(1.05);
   border-color: var(--color-yellow);

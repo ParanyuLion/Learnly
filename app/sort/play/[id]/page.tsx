@@ -388,6 +388,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
             key={item.id}
             ref={itemFlipRef(item.id)}
             className={styles.item}
+            data-depth={getCategoryDepth(categories, item.categoryId) % 4}
             data-selected={selected?.id === item.id}
             onClick={() => selectItem(item)}
           >
