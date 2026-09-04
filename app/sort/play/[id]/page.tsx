@@ -251,7 +251,10 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
           aria-expanded={isExpanded}
         >
           <span className={styles.categoryName}>
-            {isExpanded ? "▾" : "▸"} {category.name}
+            <span className={styles.expandIcon} data-expanded={isExpanded}>
+              ▸
+            </span>{" "}
+            {category.name}
           </span>
           <span className={`badge ${styles.countBadge}`}>
             {countPlacedInSubtree(categories, placed, category.id)} ชิ้น
@@ -266,9 +269,11 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
             ))}
           </div>
         )}
-        {isExpanded && (
-          <div className={styles.childList}>{children.map((child) => renderCategoryNode(child))}</div>
-        )}
+        <div className={styles.collapseTrack} data-expanded={isExpanded}>
+          <div className={styles.collapseContent}>
+            <div className={styles.childList}>{children.map((child) => renderCategoryNode(child))}</div>
+          </div>
+        </div>
       </div>
     );
   }
