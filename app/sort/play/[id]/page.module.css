@@ -108,11 +108,17 @@
   }
 }
 
+.poolGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
 .pool {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 24px;
   min-height: 48px;
 }
 

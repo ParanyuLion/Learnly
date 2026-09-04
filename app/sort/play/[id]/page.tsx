@@ -214,10 +214,12 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
             ← กลับหน้าแรก
           </Link>
         </div>
-        <div className={styles.pool}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className={`${styles.item} skeleton`} style={{ width: 70, height: 20 }} />
-          ))}
+        <div className={styles.poolGroups}>
+          <div className={styles.pool}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className={`${styles.item} skeleton`} style={{ width: 70, height: 20 }} />
+            ))}
+          </div>
         </div>
         <div className={styles.categoryGrid}>
           {Array.from({ length: 3 }).map((_, i) => (
@@ -231,6 +233,14 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   const won = mode === "immediate" ? totalItems > 0 && pool.length === 0 : revealed && pool.length === 0 && isFullyCorrect();
   const showSubmit = mode === "batch" && pool.length === 0 && !revealed;
   const showResultBanner = mode === "batch" && revealed && !isFullyCorrect();
+
+  const poolByDepth = new Map<number, Item[]>();
+  for (const item of pool) {
+    const depth = getCategoryDepth(categories, item.categoryId);
+    if (!poolByDepth.has(depth)) poolByDepth.set(depth, []);
+    poolByDepth.get(depth)!.push(item);
+  }
+  const poolDepthLevels = Array.from(poolByDepth.keys()).sort((a, b) => a - b);
 
   function renderCategoryNode(category: Category) {
     const isLeaf = isLeafCategory(categories, category.id);
@@ -382,18 +392,22 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
         <div className={styles.resultBanner}>มีบางข้อยังไม่ถูกต้อง คลิกการ์ดสีแดงเพื่อจัดใหม่</div>
       )}
 
-      <div className={styles.pool}>
-        {pool.map((item) => (
-          <button
-            key={item.id}
-            ref={itemFlipRef(item.id)}
-            className={styles.item}
-            data-depth={getCategoryDepth(categories, item.categoryId) % 4}
-            data-selected={selected?.id === item.id}
-            onClick={() => selectItem(item)}
-          >
-            {item.text}
-          </button>
+      <div className={styles.poolGroups}>
+        {poolDepthLevels.map((depth) => (
+          <div key={depth} className={styles.pool}>
+            {poolByDepth.get(depth)!.map((item) => (
+              <button
+                key={item.id}
+                ref={itemFlipRef(item.id)}
+                className={styles.item}
+                data-depth={depth % 4}
+                data-selected={selected?.id === item.id}
+                onClick={() => selectItem(item)}
+              >
+                {item.text}
+              </button>
+            ))}
+          </div>
         ))}
       </div>
 
