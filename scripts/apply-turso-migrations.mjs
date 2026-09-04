@@ -3,6 +3,12 @@
 // installed locally. Safe to re-run — already-applied migrations (tracked
 // in a `_manual_migrations` table this script creates) are skipped.
 //
+// The tracking table only knows about migrations applied *after* it was
+// introduced. If a migration's schema already exists (e.g. it was applied
+// by an earlier, untracked run of this script), that specific migration is
+// treated as already-applied and recorded without re-running its SQL,
+// rather than failing the whole run.
+//
 // Usage (PowerShell):
 //   $env:TURSO_DATABASE_URL = "libsql://your-db.turso.io"
 //   $env:TURSO_AUTH_TOKEN = "your-token"
@@ -56,7 +62,15 @@ for (const dir of migrationDirs) {
   const sqlPath = join(migrationsDir, dir, "migration.sql");
   const sql = readFileSync(sqlPath, "utf8");
   console.log(`Applying ${dir}...`);
-  await client.executeMultiple(sql);
+
+  try {
+    await client.executeMultiple(sql);
+  } catch (err) {
+    const alreadyExists = err.code === "SQL_INPUT_ERROR" && /already exists/i.test(err.message ?? "");
+    if (!alreadyExists) throw err;
+    console.log(`  schema already present (applied outside migration tracking) — marking as applied.`);
+  }
+
   await client.execute({
     sql: "INSERT INTO _manual_migrations (name, applied_at) VALUES (?, ?)",
     args: [dir, new Date().toISOString()],
