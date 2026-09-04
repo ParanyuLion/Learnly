@@ -16,6 +16,7 @@
    `turso db shell <your-db-name> < prisma/migrations/20260826163255_init/migration.sql`
    `turso db shell <your-db-name> < prisma/migrations/20260826173652_add_sort_game/migration.sql`
    `turso db shell <your-db-name> < prisma/migrations/20260827075158_add_flashcard_game/migration.sql`
+   `turso db shell <your-db-name> < prisma/migrations/20260904163643_add_nested_sort_categories/migration.sql`
    (check `prisma/migrations/` for the current list — apply any new migration directories the same way, in order, as they're added).
 3. Push this repo to GitHub.
 4. Import the repo into https://vercel.com, set environment variables:
