@@ -199,7 +199,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   const showSubmit = mode === "batch" && pool.length === 0 && !revealed;
   const showResultBanner = mode === "batch" && revealed && !isFullyCorrect();
 
-  function renderCategoryNode(category: Category, depth: number) {
+  function renderCategoryNode(category: Category) {
     const isLeaf = isLeafCategory(categories, category.id);
 
     if (isLeaf) {
@@ -208,7 +208,6 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
         <div
           key={category.id}
           className={styles.categoryBox}
-          style={depth > 0 ? { marginLeft: depth * 16 } : undefined}
           data-wrong={wrongCategoryId === category.id}
           data-correct={correctCategoryId === category.id}
         >
@@ -244,11 +243,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
     const children = getChildren(categories, category.id);
 
     return (
-      <div
-        key={category.id}
-        className={styles.categoryBox}
-        style={depth > 0 ? { marginLeft: depth * 16 } : undefined}
-      >
+      <div key={category.id} className={styles.categoryBox}>
         <button
           type="button"
           className={styles.categoryHeaderBtn}
@@ -272,7 +267,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
           </div>
         )}
         {isExpanded && (
-          <div className={styles.childList}>{children.map((child) => renderCategoryNode(child, depth + 1))}</div>
+          <div className={styles.childList}>{children.map((child) => renderCategoryNode(child))}</div>
         )}
       </div>
     );
@@ -353,7 +348,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
       </div>
 
       <div className={styles.categoryGrid}>
-        {getChildren(categories, null).map((category) => renderCategoryNode(category, 0))}
+        {getChildren(categories, null).map((category) => renderCategoryNode(category))}
       </div>
 
       {showSubmit && (

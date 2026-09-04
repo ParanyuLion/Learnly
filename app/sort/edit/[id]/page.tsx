@@ -182,12 +182,12 @@ export default function EditSortSetPage({ params }: { params: { id: string } }) 
 
   const confirmParent = categories.find((c) => c.id === confirmSubcategoryParentId);
 
-  function renderCategory(category: CategoryInput, depth: number) {
+  function renderCategory(category: CategoryInput) {
     const children = getChildren(categories, category.id);
     const isLeaf = isLeafCategory(categories, category.id);
 
     return (
-      <div key={category.id} className={styles.categoryCard} style={{ marginLeft: depth * 20 }}>
+      <div key={category.id} className={styles.categoryCard}>
         <div className={styles.categoryHeader}>
           <input
             className={`text-input ${styles.categoryNameInput}`}
@@ -245,7 +245,7 @@ export default function EditSortSetPage({ params }: { params: { id: string } }) 
         )}
 
         {children.length > 0 && (
-          <div className={styles.childList}>{children.map((child) => renderCategory(child, depth + 1))}</div>
+          <div className={styles.childList}>{children.map((child) => renderCategory(child))}</div>
         )}
       </div>
     );
@@ -275,7 +275,7 @@ export default function EditSortSetPage({ params }: { params: { id: string } }) 
           placeholder="ชื่อชุดโจทย์"
         />
         <div className={styles.categoryList}>
-          {getChildren(categories, null).map((category) => renderCategory(category, 0))}
+          {getChildren(categories, null).map((category) => renderCategory(category))}
         </div>
         <button className="btn btn-outline" onClick={addRootCategory}>
           + เพิ่มหมวดหมู่
