@@ -8,6 +8,7 @@ import {
   getChildren,
   isLeafCategory,
   getLeafCategories,
+  countItemsInSubtree,
   type Item,
   type Category,
 } from "@/lib/sort-game";
@@ -257,7 +258,13 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
           <span className={styles.categoryName}>
             {isExpanded ? "▾" : "▸"} {category.name}
           </span>
+          <span className={`badge ${styles.countBadge}`}>
+            {countItemsInSubtree(categories, sourceItems, category.id)} ชิ้น
+          </span>
         </button>
+        {!isExpanded && (
+          <p className={styles.emptyHint}>หมวดย่อย: {children.map((c) => c.name).join(", ")}</p>
+        )}
         {isExpanded && (
           <div className={styles.childList}>{children.map((child) => renderCategoryNode(child, depth + 1))}</div>
         )}

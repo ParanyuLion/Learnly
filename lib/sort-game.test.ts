@@ -5,6 +5,7 @@ import {
   getChildren,
   isLeafCategory,
   getLeafCategories,
+  countItemsInSubtree,
   type Item,
   type Category,
 } from "./sort-game";
@@ -105,5 +106,32 @@ describe("getLeafCategories", () => {
 
   it("treats every category as a leaf when none has children", () => {
     expect(getLeafCategories(categories).map((c) => c.id).sort()).toEqual(["c1", "c2"]);
+  });
+});
+
+const nestedItems: Item[] = [
+  { id: "ni1", text: "Sparrow", categoryId: "child2" }, // Birds
+  { id: "ni2", text: "Robin", categoryId: "child2" }, // Birds
+  { id: "ni3", text: "Beagle", categoryId: "grandchild1" }, // Dogs
+  { id: "ni4", text: "Rose", categoryId: "root2" }, // Plants
+];
+
+describe("countItemsInSubtree", () => {
+  it("returns the item count of a leaf category directly", () => {
+    expect(countItemsInSubtree(nestedCategories, nestedItems, "child2")).toBe(2);
+  });
+
+  it("sums items across all descendant leaves of a mid-tree container", () => {
+    // root1 (Animals) -> child1 (Mammals) -> grandchild1 (Dogs, 1 item)
+    //                  -> child2 (Birds, 2 items)
+    expect(countItemsInSubtree(nestedCategories, nestedItems, "root1")).toBe(3);
+  });
+
+  it("sums through an intermediate container with a single leaf descendant", () => {
+    expect(countItemsInSubtree(nestedCategories, nestedItems, "child1")).toBe(1);
+  });
+
+  it("returns 0 for a leaf category with no items", () => {
+    expect(countItemsInSubtree(nestedCategories, [], "root2")).toBe(0);
   });
 });
