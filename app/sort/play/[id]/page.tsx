@@ -30,6 +30,10 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   const [mode, setMode] = useState<CheckMode>("immediate");
   const [revealed, setRevealed] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  // Mounted a beat longer than expandedIds so a closing category keeps its
+  // children in the DOM through the collapse animation instead of vanishing
+  // instantly; cleared once the collapse transition finishes.
+  const [mountedIds, setMountedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
   // FLIP-animation bookkeeping: track each item button's current DOM node so we
@@ -106,6 +110,7 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
     setCorrectCategoryId(null);
     setRevealed(false);
     setExpandedIds(new Set());
+    setMountedIds(new Set());
   }
 
   function toggleMode() {
@@ -114,10 +119,37 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
   }
 
   function toggleExpand(categoryId: string) {
+    // With prefers-reduced-motion the collapse CSS transition never runs, so
+    // transitionend never fires — unmount immediately in that case instead
+    // of leaving the content mounted forever after the first expand.
+    const reducedMotion =
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     setExpandedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(categoryId)) next.delete(categoryId);
-      else next.add(categoryId);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+        if (reducedMotion) {
+          setMountedIds((m) => {
+            const nextM = new Set(m);
+            nextM.delete(categoryId);
+            return nextM;
+          });
+        }
+      } else {
+        next.add(categoryId);
+        setMountedIds((m) => new Set(m).add(categoryId));
+      }
+      return next;
+    });
+  }
+
+  function handleCollapseTransitionEnd(categoryId: string) {
+    if (expandedIds.has(categoryId)) return; // opened, or reopened before this fired — stay mounted
+    setMountedIds((prev) => {
+      if (!prev.has(categoryId)) return prev;
+      const next = new Set(prev);
+      next.delete(categoryId);
       return next;
     });
   }
@@ -269,9 +301,17 @@ export default function PlaySortSetPage({ params }: { params: { id: string } }) 
             ))}
           </div>
         )}
-        <div className={styles.collapseTrack} data-expanded={isExpanded}>
+        <div
+          className={styles.collapseTrack}
+          data-expanded={isExpanded}
+          onTransitionEnd={(e) => {
+            if (e.target === e.currentTarget) handleCollapseTransitionEnd(category.id);
+          }}
+        >
           <div className={styles.collapseContent}>
-            <div className={styles.childList}>{children.map((child) => renderCategoryNode(child))}</div>
+            {mountedIds.has(category.id) && (
+              <div className={styles.childList}>{children.map((child) => renderCategoryNode(child))}</div>
+            )}
           </div>
         </div>
       </div>
