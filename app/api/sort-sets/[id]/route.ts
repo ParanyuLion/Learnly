@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -79,29 +80,27 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "at least 2 leaf categories are required" }, { status: 400 });
   }
 
+  const categoryRows: { id: string; name: string; setId: string; parentId: string | null }[] = [];
+  const itemRows: { id: string; text: string; setId: string; categoryId: string }[] = [];
+
+  function flatten(nodes: CategoryTreeInput[], parentId: string | null) {
+    for (const node of nodes) {
+      const categoryId = randomUUID();
+      categoryRows.push({ id: categoryId, name: node.name, setId: params.id, parentId });
+      for (const text of node.items) {
+        itemRows.push({ id: randomUUID(), text, setId: params.id, categoryId });
+      }
+      flatten(node.children, categoryId);
+    }
+  }
+
+  flatten(tree, null);
+
   const updated = await prisma.$transaction(async (tx) => {
     await tx.sortCategory.deleteMany({ where: { setId: params.id } });
-
-    async function createNode(node: CategoryTreeInput, parentId: string | null) {
-      const category = await tx.sortCategory.create({
-        data: {
-          name: node.name,
-          setId: params.id,
-          parentId,
-          items:
-            node.items.length > 0
-              ? { create: node.items.map((text) => ({ text, setId: params.id })) }
-              : undefined,
-        },
-      });
-
-      for (const child of node.children) {
-        await createNode(child, category.id);
-      }
-    }
-
-    for (const node of tree) {
-      await createNode(node, null);
+    await tx.sortCategory.createMany({ data: categoryRows });
+    if (itemRows.length > 0) {
+      await tx.sortItem.createMany({ data: itemRows });
     }
 
     return tx.sortSet.update({
