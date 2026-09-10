@@ -20,6 +20,9 @@
 .cardHalf {
   flex: 1;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .cardHalf:first-child {

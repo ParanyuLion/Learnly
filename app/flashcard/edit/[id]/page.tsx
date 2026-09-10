@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchJson } from "@/lib/fetch-json";
 import { AlertDialog } from "@/components/AlertDialog";
+import { ImageUploadField } from "@/components/ImageUploadField";
 import styles from "./page.module.css";
 
-type CardInput = { front: string; back: string };
+type CardInput = { front: string; back: string; imageUrl: string | null };
 
 export default function EditFlashcardSetPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const isNew = params.id === "new";
   const [title, setTitle] = useState("");
-  const [cards, setCards] = useState<CardInput[]>([{ front: "", back: "" }]);
+  const [cards, setCards] = useState<CardInput[]>([{ front: "", back: "", imageUrl: null }]);
   const [loading, setLoading] = useState(!isNew);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -20,12 +21,12 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
 
   useEffect(() => {
     if (isNew) return;
-    fetchJson<{ title: string; cards: { front: string; back: string }[] }>(
+    fetchJson<{ title: string; cards: { front: string; back: string; imageUrl: string | null }[] }>(
       `/api/flashcard-sets/${params.id}`
     )
       .then((data) => {
         setTitle(data.title);
-        setCards(data.cards.map((c) => ({ front: c.front, back: c.back })));
+        setCards(data.cards.map((c) => ({ front: c.front, back: c.back, imageUrl: c.imageUrl ?? null })));
         setLoading(false);
       })
       .catch((err) => {
@@ -38,8 +39,12 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
     setCards((prev) => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
   }
 
+  function setCardImage(index: number, url: string | null) {
+    setCards((prev) => prev.map((c, i) => (i === index ? { ...c, imageUrl: url } : c)));
+  }
+
   function addCard() {
-    setCards((prev) => [...prev, { front: "", back: "" }]);
+    setCards((prev) => [...prev, { front: "", back: "", imageUrl: null }]);
   }
 
   function removeCard(index: number) {
@@ -50,7 +55,7 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
     if (saving) return;
 
     const cleanCards = cards
-      .map((c) => ({ front: c.front.trim(), back: c.back.trim() }))
+      .map((c) => ({ front: c.front.trim(), back: c.back.trim(), imageUrl: c.imageUrl }))
       .filter((c) => c.front && c.back);
 
     if (!title.trim() || cleanCards.length === 0) {
@@ -113,6 +118,11 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
                   value={card.front}
                   onChange={(e) => updateCard(i, "front", e.target.value)}
                   placeholder="ด้านหน้า"
+                />
+                <ImageUploadField
+                  value={card.imageUrl}
+                  onChange={(url) => setCardImage(i, url)}
+                  label="รูปด้านหน้า"
                 />
               </div>
               <div className={styles.cardHalf}>
