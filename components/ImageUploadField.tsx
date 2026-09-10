@@ -16,6 +16,7 @@ export function ImageUploadField({ value, onChange, label = "รูปภาพ"
   const [error, setError] = useState<string | null>(null);
 
   async function handleFile(file: File) {
+    if (uploading) return;
     const validationError = validateImageFile(file);
     if (validationError) {
       setError(validationError);
@@ -31,7 +32,10 @@ export function ImageUploadField({ value, onChange, label = "รูปภาพ"
       if (!res.ok) {
         throw new Error(body.error || `อัปโหลดไม่สำเร็จ (${res.status})`);
       }
-      onChange(body.url as string);
+      if (typeof body.url !== "string") {
+        throw new Error("อัปโหลดไม่สำเร็จ");
+      }
+      onChange(body.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "อัปโหลดไม่สำเร็จ");
     } finally {
@@ -58,8 +62,11 @@ export function ImageUploadField({ value, onChange, label = "รูปภาพ"
           <img src={value} alt={label} className={styles.thumb} />
           <button
             type="button"
-            className="btn btn-outline btn-sm"
-            onClick={() => onChange(null)}
+            className={`btn btn-outline btn-sm ${styles.removeBtn}`}
+            onClick={() => {
+              setError(null);
+              onChange(null);
+            }}
             disabled={uploading}
           >
             ✕ ลบรูป

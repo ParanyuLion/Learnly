@@ -13,9 +13,14 @@
 .thumb {
   max-height: 96px;
   max-width: 100%;
+  min-width: 0;
   object-fit: contain;
   border-radius: 8px;
   border: 1px solid var(--border, #d0d0d0);
+}
+
+.removeBtn {
+  flex-shrink: 0;
 }
 
 .error {

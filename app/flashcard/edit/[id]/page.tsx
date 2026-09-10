@@ -35,7 +35,7 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
       });
   }, [isNew, params.id]);
 
-  function updateCard(index: number, field: keyof CardInput, value: string) {
+  function updateCard(index: number, field: "front" | "back", value: string) {
     setCards((prev) => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
   }
 

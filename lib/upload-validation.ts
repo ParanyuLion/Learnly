@@ -1,7 +1,9 @@
 export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/avif"];
+
 export function validateImageFile(file: { type: string; size: number }): string | null {
-  if (!file.type.startsWith("image/")) return "ไฟล์ต้องเป็นรูปภาพ";
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return "ไฟล์ต้องเป็นรูปภาพ";
   if (file.size > MAX_IMAGE_BYTES) return "ไฟล์ใหญ่เกิน 4MB";
   return null;
 }

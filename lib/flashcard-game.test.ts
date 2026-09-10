@@ -99,4 +99,9 @@ describe("imageUrl handling", () => {
     const choices = buildQuizChoices(withImages[0], withImages, 5);
     expect([...choices].sort()).toEqual(["Maew", "Nok", "Sunuk"]);
   });
+
+  it("moveToBack preserves imageUrl", () => {
+    const rotated = moveToBack(withImages);
+    expect(rotated.find((c) => c.id === "c1")?.imageUrl).toBe("https://blob.example/x.png");
+  });
 });

@@ -11,8 +11,16 @@ describe("validateImageFile", () => {
     expect(validateImageFile({ type: "image/png", size: 1000 })).toBeNull();
   });
 
+  it("accepts image/webp under the size limit", () => {
+    expect(validateImageFile({ type: "image/webp", size: 1000 })).toBeNull();
+  });
+
   it("rejects a non-image type", () => {
     expect(validateImageFile({ type: "application/pdf", size: 1000 })).toMatch(/รูป/);
+  });
+
+  it("rejects image/svg+xml", () => {
+    expect(validateImageFile({ type: "image/svg+xml", size: 1000 })).toMatch(/รูป/);
   });
 
   it("rejects a file over the size limit", () => {

@@ -24,4 +24,5 @@
    - `TURSO_AUTH_TOKEN`
    - `SITE_PASSCODE`
    - `SESSION_SECRET`
+   - `BLOB_READ_WRITE_TOKEN` — created automatically when you add a Vercel Blob store to the project; required for flashcard image uploads
 5. Deploy. Vercel builds with `npm run build` automatically.
