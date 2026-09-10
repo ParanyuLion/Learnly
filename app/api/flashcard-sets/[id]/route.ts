@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { normalizeImageUrl } from "@/lib/upload-validation";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const set = await prisma.flashcardSet.findUnique({
@@ -23,7 +24,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "title and cards are required" }, { status: 400 });
   }
 
-  const cards: { front: string; back: string }[] = [];
+  const cards: { front: string; back: string; imageUrl: string | null }[] = [];
 
   for (const c of rawCards) {
     const front = typeof c.front === "string" ? c.front.trim() : "";
@@ -36,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       );
     }
 
-    cards.push({ front, back });
+    cards.push({ front, back, imageUrl: normalizeImageUrl(c.imageUrl) });
   }
 
   if (cards.length === 0) {
