@@ -1,4 +1,4 @@
-export type Card = { id: string; front: string; back: string };
+export type Card = { id: string; front: string; back: string; imageUrl?: string | null };
 
 export function shuffleCards(cards: Card[]): Card[] {
   const copy = [...cards];

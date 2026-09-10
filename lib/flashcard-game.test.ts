@@ -80,3 +80,23 @@ describe("buildQuizChoices", () => {
     expect(cards).toEqual(copy);
   });
 });
+
+describe("imageUrl handling", () => {
+  const withImages: Card[] = [
+    { id: "c1", front: "Dog", back: "Sunuk", imageUrl: "https://blob.example/x.png" },
+    { id: "c2", front: "Cat", back: "Maew", imageUrl: null },
+    { id: "c3", front: "Bird", back: "Nok" },
+  ];
+
+  it("shuffleCards preserves each card's imageUrl", () => {
+    const shuffled = shuffleCards(withImages);
+    expect(shuffled.find((c) => c.id === "c1")?.imageUrl).toBe("https://blob.example/x.png");
+    expect(shuffled.find((c) => c.id === "c2")?.imageUrl).toBeNull();
+    expect(shuffled.find((c) => c.id === "c3")?.imageUrl).toBeUndefined();
+  });
+
+  it("buildQuizChoices draws only from back text, never image URLs", () => {
+    const choices = buildQuizChoices(withImages[0], withImages, 5);
+    expect([...choices].sort()).toEqual(["Maew", "Nok", "Sunuk"]);
+  });
+});
