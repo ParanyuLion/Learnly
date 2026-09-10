@@ -222,7 +222,17 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
               data-flipped={flipped}
               onClick={() => setFlipped((f) => !f)}
             >
-              {flipped ? current.back : current.front}
+              {flipped ? (
+                current.back
+              ) : (
+                <span className={styles.cardFront}>
+                  {current.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={current.imageUrl} alt="" className={styles.cardImage} loading="lazy" />
+                  )}
+                  {current.front}
+                </span>
+              )}
             </button>
           </div>
           <div className={styles.actions}>
@@ -241,7 +251,13 @@ export default function PlayFlashcardSetPage({ params }: { params: { id: string 
           <p className={styles.progress}>
             ข้อ {quizAnswered + 1} จาก {totalCards} (ถูก {quizCorrect})
           </p>
-          <div className={styles.quizQuestion}>{currentQuizCard.front}</div>
+          <div className={styles.quizQuestion}>
+            {currentQuizCard.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={currentQuizCard.imageUrl} alt="" className={styles.quizImage} loading="lazy" />
+            )}
+            {currentQuizCard.front}
+          </div>
           <div className={styles.quizChoices}>
             {quizChoices.map((choice) => {
               const isCorrectChoice = choice === currentQuizCard.back;

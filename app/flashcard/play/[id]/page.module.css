@@ -257,3 +257,25 @@
   background: var(--color-coral);
   color: white;
 }
+
+.cardFront {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardImage {
+  display: block;
+  max-height: 200px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.quizImage {
+  display: block;
+  max-height: 200px;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 0 auto 12px;
+}
