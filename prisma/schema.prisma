@@ -59,9 +59,10 @@ model FlashcardSet {
 }
 
 model Flashcard {
-  id    String       @id @default(cuid())
-  setId String
-  set   FlashcardSet @relation(fields: [setId], references: [id], onDelete: Cascade)
-  front String
-  back  String
+  id       String       @id @default(cuid())
+  setId    String
+  set      FlashcardSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  front    String
+  back     String
+  imageUrl String?
 }
