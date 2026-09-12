@@ -29,15 +29,16 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   for (const c of rawCards) {
     const front = typeof c.front === "string" ? c.front.trim() : "";
     const back = typeof c.back === "string" ? c.back.trim() : "";
+    const imageUrl = normalizeImageUrl(c.imageUrl);
 
-    if (!front || !back) {
+    if (!back || (!front && !imageUrl)) {
       return NextResponse.json(
-        { error: "each card needs a non-blank front and back" },
+        { error: "each card needs a non-blank back, and a front or an image" },
         { status: 400 }
       );
     }
 
-    cards.push({ front, back, imageUrl: normalizeImageUrl(c.imageUrl) });
+    cards.push({ front, back, imageUrl });
   }
 
   if (cards.length === 0) {

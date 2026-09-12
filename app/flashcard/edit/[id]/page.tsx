@@ -56,7 +56,7 @@ export default function EditFlashcardSetPage({ params }: { params: { id: string 
 
     const cleanCards = cards
       .map((c) => ({ front: c.front.trim(), back: c.back.trim(), imageUrl: c.imageUrl }))
-      .filter((c) => c.front && c.back);
+      .filter((c) => (c.front || c.imageUrl) && c.back);
 
     if (!title.trim() || cleanCards.length === 0) {
       setAlertMessage("ต้องมีชื่อชุดโจทย์และการ์ดอย่างน้อย 1 ใบ");

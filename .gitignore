@@ -5,3 +5,6 @@ dev.db
 .env
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+.vercel
+.env*
